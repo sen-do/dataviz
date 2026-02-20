@@ -1,0 +1,25 @@
+project:
+  type: book
+  output-dir: thesis
+
+book:
+  title: "Thesis-Titel"
+  author: "Max Mustermann"
+  chapters:
+    - index.qmd
+    - project_charta.qmd
+    - data_report.qmd
+    - modelling_report.qmd
+    - evaluation.qmd
+    - bibliography.qmd
+  appendices:
+    - meeting_notes.qmd
+
+format:
+  pdf:
+    documentclass: scrreprt
+    number-sections: true
+    papersize: a4
+    template-partials:
+      - before-body.tex
+    fig-pos: H

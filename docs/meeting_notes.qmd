@@ -1,0 +1,43 @@
+# Meeting Notes
+Meeting notes sorted in descending order. If not stated otherwise participants are ...
+
+
+## 14.04.2022
+
+Topics:
+
+* topic 1
+* topic 2
+* ...
+
+Decisions:
+
+* decision 1
+* decision 2
+* ...
+
+Next steps:
+
+* this
+* and that
+* ...
+
+## 07.04.2022
+
+Topics:
+
+* topic 1
+* topic 2
+* ...
+
+Decisions:
+
+* decision 1
+* decision 2
+* ...
+
+Next steps:
+
+* this
+* and that
+* ...

@@ -1,0 +1,21 @@
+profile:
+  group: 
+    - [website, thesis]
+  default: website
+
+lang: en
+language:
+  section-title-appendices: "Appendix"
+
+number-sections: true
+
+bibliography: refs.bib
+csl: vancouver-brackets.csl
+
+jupyter: python3
+
+execute:
+  freeze: auto
+
+editor:
+  render-on-save: true
