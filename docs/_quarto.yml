@@ -1,11 +1,31 @@
-profile:
-  group: 
-    - [website, thesis]
-  default: website
+project:
+  type: website
+  output-dir: build
 
 lang: en
 language:
   section-title-appendices: "Appendix"
+
+website:
+  title: "Sample Project"
+  search: true
+  sidebar:
+    style: "floating"
+    search: true
+    contents:
+      - index.qmd
+      - project_charta.qmd
+      - data_report.qmd
+      - modelling_report.qmd
+      - evaluation.qmd
+      - meeting_notes.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+      
 
 number-sections: true
 

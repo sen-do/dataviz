@@ -1,37 +1,16 @@
----
-title: "About This Documentation"
----
+# Overwiew 
 
-![The Data Science Process @DoemerKempf2022_1000150238](pics/dsprocess.png)
+This documentation describes the conception, development and evaluation of a data visualisation product. The goal of the project is to ...
 
+![The vizualization product development process](pics/vizproductprocess.png){#fig-vizprocess}
 
-This is an example on how to incorporate executable Python code and show a figure output:
+The methodological procedure of this work follows the process model shown in @fig-vizprocess, which is based on the concepts on data product development outlined in @DoemerKempf2022_1000150238 and the [data science project-template](https://github.com/phonosync/dataviz-project-template) on github.
 
-```{python}
-#| label: fig-demo
-#| fig-cap: "A simple demonstration of executable Python code producing a figure object."
-#| #| echo: true
-#| code-fold: true
-import matplotlib.pyplot as plt
-import numpy as np
+It comprises the following four main phases with the corresponding documentation artefacts:
 
-# Generate sample data
-x = np.linspace(0, 2*np.pi, 100)
-y = np.sin(x)
+* **Project Understanding** &rarr; [Project Charta](project_charta.qmd): Fundamental analysis of the users and their characteristics, the tasks to be supported, formulation of the goals, success criteria and constraints.
+* **Data Acquisition and Exploration** &rarr; [Data Report](data_report.qmd): Identification and acquisition of relevant data sources, followed by exploratory data analysis to understand data quality and structure.
+* **Visual Encoding and Design** &rarr; [Design Description](viz_encoding_design.qmd): Description of the visual encoding and design decisions made for the data visualization product/prototyp.
+* **Evaluation** &rarr; [Evaluation Report](evaluation.qmd): Assessment of the developed prototype based on success criteria outlined in the project charta, evaluation of stakeholder feedback, checkpoint decision and, if applicable, gathering additional requirements and planning of the deployment.
+* **Deployment** &rarr; [Deployment Report](deployment.qmd): Description of the software architecture and deployment process, as well as the integration of the visualization product into the target environment and processes.
 
-# Create the plot
-fig, ax = plt.subplots(figsize=(8, 5))
-
-ax.plot(x, y, color='blue', linewidth=2)
-
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_title('Plot title')
-
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-
-plt.show()
-```
-
-Then the figure can be referenced with @fig-demo.

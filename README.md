@@ -1,32 +1,34 @@
 # Sample Project
-This is a template for a Data Science project using Python, conda for environment management and Quarto for documentation.
+This is a template for a data visualization project using Python, uv for environment and package management and Quarto for documentation.
 
 To adapt to your individual project change `sample` to the respective project name in the commands below
 
 Adapt the `LICENSE` as required.
 
-Provide a brief description of the project here.
+> To do: Provide a brief description of the project here.
 
 ## Project Organisation
-According to [Is It Ops That Make Data Science Scientific? Archives of Data Science, Series A, vol 8, p. 12, 2022.](https://publikationen.bibliothek.kit.edu/1000150238/152958955)
+The visualization product development is organised according to the following process model:
 
-![The Data Science Process](docs/pics/dsprocess.png)
+![The visualization product development process](docs/pics/vizproductprocess.png)
 
-Code and configurations used in the different project phases are stored in the subfolders
+Code and configurations used in the different project phases are stored in the correspoding subfolders. Documentation artefacts in the form of a Quarto project are provided in `docs`.
 
-* `data_acquisition`
-* `eda`
-* `modelling`
-* `deployment`
+| Phase | Code folders | Documentation section | `docs`-File |
+|:-------|:---|:---|:---|
+| Project Understanding | -  | Project Charta | project_charta.qmd  |
+| Data Acquisition and Exploration | `eda` | Data Report | data_report.qmd  |
+| Visual Encoding and Design | `encoding-design`  | Visual Encoding and Design | viz_encoding_design.qmd  |
+| Evaluation | `evaluation`  | Evaluation | evaluation.qmd  |
+| Deployment | `deployment` | Deployment | deplyoment.qmd |
 
-Templates for the documentation artefacts from the different project phases are provided in the subfolder `docs` in the form of a Quarto project:
 
-* Project charta
-* Data report
-* Modelling report
-* Evaluation decision log
+> To do: Adjust accoding to your specific project needs - ensure consistency with readme, documentation, etc.
 
-See section `Quarto Setup and Usage` for instructions on how to build and serve the documentation website from the indvidual reports using Quarto.
+> To do: add link to documentation website for convenience.
+
+
+See section `Quarto Setup and Usage` for instructions on how to build and serve the documentation website using Quarto.
 
 ## Python Environment Setup and Management with uv
 Make sure to have uv installed: https://docs.astral.sh/uv/getting-started/installation/
@@ -93,8 +95,8 @@ If Quarto is used to build a documentation website as described in the Project O
 
 Source `*.qmd` and configuration files are in the `docs` folder. The quarto project configuration is setup as follows:
 
-Base config: `docs/_quarto.yml`  
-Two profiles (https://quarto.org/docs/projects/profiles.html) allow you two generate two different outputs from the same source files. With the benefit to reuse as much as possible from the ongoing project documentation in the final thesis:
+Config: `docs/_quarto.yml`  
+
 
 - Website documentation: `docs/_quarto-website.yml`
   `quarto render --profile website` renders  to `docs/build`
@@ -106,8 +108,7 @@ With embedded python code chunks that perform computations, you need to make sur
 uv run quarto render
 ```
 
-The default profile, which is used when the `quarto render` command is used without argument, can be set in `docs/_quarto.yml` according to the current need when working with local previews etc.  
-Further adaptations to the configuration files as needed.
+
 
 ### Contributions to the Website Documentation
 
