@@ -1,5 +1,5 @@
 version = 1
-requires-python = ">=3.12"
+requires-python = ">=3.12, <4"
 resolution-markers = [
     "python_full_version < '3.14'",
     "python_full_version >= '3.14'",
@@ -1777,6 +1777,29 @@ wheels = [
 ]
 
 [[package]]
+name = "sample-project"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "jupyterlab" },
+    { name = "matplotlib" },
+    { name = "pandas" },
+    { name = "python-dotenv" },
+    { name = "seaborn" },
+    { name = "ydata-profiling" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "jupyterlab", specifier = ">=4.4.7" },
+    { name = "matplotlib", specifier = ">=3.10.6" },
+    { name = "pandas", specifier = ">=2.3.2" },
+    { name = "python-dotenv", specifier = ">=1.1.1" },
+    { name = "seaborn", specifier = ">=0.13.2" },
+    { name = "ydata-profiling", specifier = ">=4.12.2" },
+]
+
+[[package]]
 name = "scipy"
 version = "1.15.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1918,29 +1941,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/b8/d0/f95da95524bdd99613923ca61a3036d1308cee1290e5e8acb89f51736a8c/statsmodels-0.14.5-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9c8a9c384a60c80731b278e7fd18764364c8817f4995b13a175d636f967823d1", size = 10460450 },
     { url = "https://files.pythonhosted.org/packages/28/bb/59e7be0271be264b7b541baf3973f97747740950bfd5115de731f63da8ab/statsmodels-0.14.5-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:557df3a870a57248df744fdfcc444ecbc5bdbf1c042b8a8b5d8e3e797830dc2a", size = 10694060 },
     { url = "https://files.pythonhosted.org/packages/8b/c0/b28d0fd0347ea38d3610052f479e4b922eb33bb8790817f93cd89e6e08ba/statsmodels-0.14.5-cp314-cp314-win_amd64.whl", hash = "sha256:95af7a9c4689d514f4341478b891f867766f3da297f514b8c4adf08f4fa61d03", size = 9648961 },
-]
-
-[[package]]
-name = "templateproject"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "jupyterlab" },
-    { name = "matplotlib" },
-    { name = "pandas" },
-    { name = "python-dotenv" },
-    { name = "seaborn" },
-    { name = "ydata-profiling" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "jupyterlab", specifier = ">=4.4.7" },
-    { name = "matplotlib", specifier = ">=3.10.6" },
-    { name = "pandas", specifier = ">=2.3.2" },
-    { name = "python-dotenv", specifier = ">=1.1.1" },
-    { name = "seaborn", specifier = ">=0.13.2" },
-    { name = "ydata-profiling", specifier = ">=4.12.2" },
 ]
 
 [[package]]

@@ -83,28 +83,35 @@ This is an example on how to incorporate executable Python code and show a figur
 
 ```{python}
 #| label: fig-demo
-#| fig-cap: "A simple demonstration of executable Python code producing a figure object."
+#| fig-cap: "Distribution of monthly revenue across product categories (sample data)."
 #| echo: true
 #| code-fold: true
 import matplotlib.pyplot as plt
-import numpy as np
 
-# Generate sample data
-x = np.linspace(0, 2*np.pi, 100)
-y = np.sin(x)
+# Sample data
+categories = ['Electronics', 'Clothing', 'Food', 'Books', 'Sports']
+revenue = [42000, 28500, 35200, 12800, 19400]
 
-# Create the plot
-fig, ax = plt.subplots(figsize=(8, 5))
+# Create the bar chart
+fig, ax = plt.subplots(figsize=(6, 3.75))
 
-ax.plot(x, y, color='blue', linewidth=2)
+bars = ax.bar(categories, revenue, color='#4C78A8', edgecolor='white')
 
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_title('Plot title')
+ax.set_xlabel('Product Category')
+ax.set_title('Monthly Revenue by Product Category')
 
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
+ax.spines['left'].set_visible(False)
+ax.yaxis.set_visible(False)
+ax.tick_params(axis='x', length=0)
 
+# Add value labels on bars
+for bar, val in zip(bars, revenue):
+    ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 500,
+            f'{val:,.0f}', ha='center', va='bottom', fontsize=9)
+
+plt.tight_layout()
 plt.show()
 ```
 
