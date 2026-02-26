@@ -1,6 +1,6 @@
 # Overview 
 
-This documentation describes the conception, development and evaluation of a data visualisation product. The goal of the project is to ...
+This documentation describes the conception, development and evaluation of a data visualisation product. The goal of the project is to ....
 
 ![The vizualization product development process](pics/vizproductprocess.png){#fig-vizprocess}
 
