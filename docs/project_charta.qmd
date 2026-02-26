@@ -13,15 +13,11 @@ It is also helpful to specify what is explicitly excluded from the project objec
 List the people involved in and affected by the project. Describe their goals and relationships with each other. Visualisation in the form of a stakeholder map can provide a quick overview.
 
 ## User Analysis
-Analyse the target users of the visualization product following the customer profile side of the Value Proposition Canvas [@Osterwalder2014]:
+Analyse the target audience of the visualization product and create at least 2 personas with **relevant attributes** such as domain expertise, data literacy, technical environment (devices, screen sizes), frequency of use etc. Amend each persona with the dimensions of the customer profile side in the Value Proposition Canvas @Osterwalder2014:
 
-* **Customer Jobs**: What tasks are users trying to accomplish? Consider functional jobs (e.g. analysing data, making decisions), social jobs (e.g. reporting to stakeholders, collaborating with colleagues) and emotional jobs (e.g. feeling confident in their decisions).
+* **User tasks** (jobs): What tasks are users trying to accomplish? Consider functional jobs (e.g. analysing data, making decisions), social jobs (e.g. reporting to stakeholders, collaborating with colleagues) and emotional jobs (e.g. feeling confident in their decisions).
 * **Pains**: What obstacles, risks or undesired outcomes do users currently face? What makes their current approach frustrating or inefficient?
 * **Gains**: What outcomes and benefits do users expect or desire? What would exceed their expectations?
-
-Additionally, characterise the user segments with relevant attributes such as domain expertise, data literacy, technical environment (devices, screen sizes) and frequency of use.
-
-Summarise the most important findings: relevant segments and user groups. You can reference more detailed analyses such as individual personas or interview protocols in separate documents in the appendix.
 
 
 ## Situation Assessment
@@ -29,7 +25,7 @@ Describe the available resources (data, personnel, material, software/tools, inf
 
 
 ## Visualization Concept
-Translate the project objectives into a concrete visualization concept. This corresponds to the value map side of the Value Proposition Canvas [@Osterwalder2014] – describe how the proposed visualization product addresses the users' jobs, relieves their pains and creates gains. Consider the following aspects:
+Translate the project objectives into a concrete visualization concept. This corresponds to the value map side of the Value Proposition Canvas [@Osterwalder2014] – describe how the proposed visualization product addresses the users' tasks, relieves their pains and creates gains. Address the following aspects:
 
 * **Product form**: Composition of the visualization product – dashboard, data story, infographic, exploratory tool, etc.
 * **Visual encodings**: Types of charts and visualizations to be used – e.g. bar chart, line chart, scatter plot, map, etc.
@@ -40,7 +36,7 @@ Translate the project objectives into a concrete visualization concept. This cor
 For each design decision, articulate the intended value along three dimensions:
 
 * **Cognitive and analytical value**: How does the design amplify the user's ability to detect patterns, identify outliers, understand distributions or discover relationships [@card1999; @vanwijk2005]?
-* **Communicative value**: How does the design support the communication of information to diverse audiences with varying levels of data literacy?
+* **Communicative value**: How does the design support the communication of information to the target audience profile(s)? 
 * **Experiential and aesthetic value**: How do the visual and interactive qualities of the design foster engagement, trust and willingness to adopt the product in practice?
 
 Justify the concept by mapping it explicitly to the project objectives and the user needs identified in the user analysis.
@@ -81,4 +77,4 @@ gantt
 See [Mermaid syntax for Gantt charts](https://mermaid.js.org/syntax/gantt.html). It might not be displayed correctly in Safari &#8594; use Chrome. [Live editor with export functionality](https://mermaid.live/)
 
 ## Roles and Contact Details
-List the people involved in the development work here with their role titles, tasks and contact details
+List the people involved in the development work here with their role titles, tasks and contact details.
