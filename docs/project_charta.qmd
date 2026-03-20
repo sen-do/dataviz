@@ -50,7 +50,7 @@ The project enables users to explore the documented relationship network of key 
 
 ## User Analysis
 
-*[Personas to be embedded here]*
+[Personas](personas.qmd)
 
 ---
 
@@ -128,5 +128,5 @@ gantt
 | Role | Name | Contact |
 |------|------|---------|
 | Student | Sendogan Kulakci | kulaksen@students.zhaw.ch |
-| Student | Lewis Birrer | *to be added* |
+| Student | Lewis Birrer | birrelew@students.zhaw.ch |
 | Lecturer | Dr. Manuel Dömer | doem@zhaw.ch |
