@@ -1,0 +1,98 @@
+---
+title: "Personas"
+---
+
+## Persona 1 – Sarah Thornton
+
+![Sarah Thornton](images/sarah.png){width=200px style="border-radius: 50%; float: left; margin-right: 20px; margin-bottom: 10px;"}
+
+> *"I know there's a story hidden in these documents – I just need a way to see the full picture, not just individual pieces."*
+
+**Background & Demographics:**
+34 years old, female, investigative journalist at an online news outlet, BA in Political Science, MSc in Data Journalism, single, London
+
+**Hobbies:**
+OSINT research, podcasts on financial crime, cycling, investigative documentary series
+
+**Personality:**
+Analytical, skeptical, persistent, deadline-driven, high attention to detail
+
+**Domain Expertise & Data Literacy:**
+High. Regularly works with leaked documents, public records, and structured data. Comfortable with tools like Palantir, Gephi, and basic Python for data cleaning. Has covered financial crime and political corruption stories.
+
+**Technical Environment:**
+Desktop-first (MacBook Pro), large external monitor, Chrome. Occasionally accesses reference material on mobile but does all serious work at a desk.
+
+**Frequency of Use:**
+Intensive but episodic – uses the tool heavily during active investigations, then not at all for weeks.
+
+---
+
+**Jobs (Tasks):**
+
+- Cross-reference names and institutions across hundreds of documents quickly
+- Identify which individuals appear as connectors between different power circles
+- Verify that every connection shown is backed by a primary source document
+- Build a factual, defensible basis for publication – no speculation
+
+**Pain Points:**
+
+- Current tools (keyword search, manual document review) are slow and miss structural patterns
+- Existing network visualizations she has seen are either too complex to navigate or too simplified to be useful
+- Hard to distinguish meaningful connections from noise in large document sets
+- Risk of publishing something that turns out to be based on misidentified entities (e.g. two different people with the same name)
+
+**Goals & Expectations:**
+
+- Quickly identify the most structurally important actors in the network without reading every document
+- Be able to click on any connection and immediately see the source document it comes from
+- Filter the network by domain (finance, politics, science) to focus her research
+- Export findings or share a specific view with her editor as evidence
+
+---
+
+## Persona 2 – Marcus Hoffmann
+
+![Marcus Hoffmann](images/marcus.png){width=200px style="border-radius: 50%; float: left; margin-right: 20px; margin-bottom: 10px;"}
+
+> *"I followed the news about Epstein but I always felt like I only ever got fragments. I want to understand how it all fits together."*
+
+**Background & Demographics:**
+47 years old, male, senior project manager at an engineering firm, MBA, married with two children, Hamburg
+
+**Hobbies:**
+Current affairs podcasts, political non-fiction, weekend hiking, chess
+
+**Personality:**
+Curious, methodical, moderate tech comfort, values credibility and transparency over speed
+
+**Domain Expertise & Data Literacy:**
+Moderate. Follows political and economic news closely. Comfortable with spreadsheets and basic data charts but has no programming experience. Has never used network visualization tools.
+
+**Technical Environment:**
+Desktop at home (Windows PC), standard 1080p monitor, Firefox. Occasionally uses a tablet for reading but would not use a complex interactive tool on it.
+
+**Frequency of Use:**
+Casual but recurring – returns to the tool every few weeks when new information surfaces in the news.
+
+---
+
+**Jobs (Tasks):**
+
+- Get a comprehensible overview of who Epstein was connected to and in what contexts
+- Understand why certain names keep appearing in media coverage
+- Satisfy a genuine curiosity about the structural dynamics behind the story without having to read thousands of pages
+
+**Pain Points:**
+
+- Media coverage feels fragmented and driven by individual names rather than the overall structure
+- Finds raw document portals overwhelming – no way to navigate or orient himself
+- Worries about accidentally consuming misinformation or speculative content presented as fact
+- Network graphs he has encountered online felt intimidating and unexplained
+
+**Goals & Expectations:**
+
+- A guided entry point that explains what he is looking at before he starts exploring
+- Ability to click on a person and get a plain-language summary of their documented role
+- Clear visual distinction between well-documented connections and weaker ones
+- Confidence that everything shown comes from verifiable public documents, not interpretation
