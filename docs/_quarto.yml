@@ -13,7 +13,10 @@ website:
     style: "floating"
     search: true
     contents:
-      - project_charta.qmd
+      - text: "Project Charta"
+        href: project_charta.qmd
+        contents:
+          - personas.qmd
       - index.qmd
       - data_report.qmd
       - viz_design_report.qmd
