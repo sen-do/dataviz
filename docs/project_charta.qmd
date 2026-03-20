@@ -1,80 +1,132 @@
-# Project Charta
+---
+title: "Project Charta – Epstein Files Network Analysis"
+---
+
 ## Context and Scope
-Describe the context (domain/business area) and topic of the visualization project. Which topical aspects should be addressed? Which question(s) should the data visualization project answer? What are the expected benefits of the project? Where should the visualization product be published (e.g. website, app, intranet)?
+
+This project analyzes the publicly released Epstein Files – legal documents, emails, and records published by the U.S. Department of Justice and the U.S. House Oversight Committee. The dataset is sourced from HuggingFace (Nikity/Epstein-Files), which provides pre-extracted text with direct DOJ source URLs for provenance verification.
+
+The project addresses the following research question:
+
+> *Which network structure underlies the documented connections of Jeffrey Epstein, and which persons or institutions functioned as structural bridges between otherwise separate domains?*
+
+The visualization product will be published as a publicly accessible Streamlit web application and a Quarto-based data story on GitHub Pages.
+
+---
 
 ## Project Objectives and Success Criteria
-Describe the objectives **from the client/stakeholder perspective**. For example: "Enable users to understand the distribution of sales across different regions". Try to be as specific as possible, but restrict to the concrete needs formulated by the client/stakeholders. For example: if a dashboard is needed explicitly, then state it here, otherwise leave the form of the visualization product open.
 
-Formulate success criteria (from the client/stakeholder perspective): qualitative objectives and, wherever possible, corresponding quantitative metrics with target values to be achieved within the project. These objectives should directly address the pains and gains identified in the user analysis.
+The project enables users to explore the documented relationship network of key individuals in the Epstein Files. Specifically:
 
-It is also helpful to specify what is explicitly excluded from the project objectives (out of scope).
+- Identify which actors function as structural bridges between otherwise disconnected clusters (betweenness centrality / structural holes)
+- Explore the network interactively, filtered by domain, time period, and relationship type
+- Trace every visualized connection back to its source document
+
+**Success criteria:**
+
+- Research question is answered visually and analytically
+- Dataset meets course requirements: 100+ observations, 6+ features, mix of numerical and categorical variables
+- Full pipeline is reproducible via GitHub repository and documented in Quarto
+- Visualization product is publicly deployed and accessible
+
+**Out of scope:**
+
+- Full ingestion of the complete DOJ corpus – a defined, documented subset is used
+- LLM/RAG-based question answering
+- Speculation or unverified claims about individuals
+
+---
 
 ## Stakeholder Analysis
-List the people involved in and affected by the project. Describe their goals and relationships with each other. Visualisation in the form of a stakeholder map can provide a quick overview.
+
+| Stakeholder | Role | Goals | Relationship |
+|-------------|------|-------|--------------|
+| Project team – Gruppe 7 | Developers | Successfully complete the project, learn new methods, achieve a good grade | Internal – responsible for all deliverables |
+| Course instructors | Evaluators | Assess technical quality, reproducibility, and visualization design | External – define requirements, provide feedback, grade the project |
+| General public / researchers | End users | Explore documented connections in a transparent, data-driven way | External – secondary audience for the public platform |
+| Journalists / investigators | End users | Cross-reference documented relationships with source material | External – potential future users of the platform |
+
+---
 
 ## User Analysis
-Analyse the target audience of the visualization product and create at least 2 personas with **relevant attributes** such as domain expertise, data literacy, technical environment (devices, screen sizes), frequency of use etc. Amend each persona with the dimensions of the customer profile side in the Value Proposition Canvas @Osterwalder2014:
 
-* **User tasks** (jobs): What tasks are users trying to accomplish? Consider functional jobs (e.g. analysing data, making decisions), social jobs (e.g. reporting to stakeholders, collaborating with colleagues) and emotional jobs (e.g. feeling confident in their decisions).
-* **Pains**: What obstacles, risks or undesired outcomes do users currently face? What makes their current approach frustrating or inefficient?
-* **Gains**: What outcomes and benefits do users expect or desire? What would exceed their expectations?
+*[Personas to be embedded here]*
 
+---
 
 ## Situation Assessment
-Describe the available resources (data, personnel, material, software/tools, infrastructure, etc.) and time as well as restrictions and constraints. Possible risks that may arise during the project are also identified.
 
+**Available resources:**
+
+- Dataset: [Nikity/Epstein-Files](https://huggingface.co/datasets/Nikity/Epstein-Files) on HuggingFace (4.1M rows, Parquet, pre-extracted text, DOJ source URLs)
+- Personnel: 2 team members, approx. 2–3 hours/week each over 8–10 weeks (~20–30 total hours)
+- Tools: Python, NetworkX, spaCy, Streamlit, Quarto, GitHub
+
+**Constraints and risks:**
+
+- Limited time requires strict scope – no bulk infrastructure projects
+- Entity resolution (name disambiguation) is the main analytical risk; mitigated by alias mapping and manual validation of top entities
+- Dataset may not cover 100% of released documents; coverage will be documented as a limitation
+
+---
 
 ## Visualization Concept
-Translate the project objectives into a concrete visualization concept. This corresponds to the value map side of the Value Proposition Canvas [@Osterwalder2014] – describe how the proposed visualization product addresses the users' tasks, relieves their pains and creates gains. Address the following aspects:
 
-* **Product form**: Composition of the visualization product – dashboard, data story, infographic, exploratory tool, etc.
-* **Visual encodings**: Types of charts and visualizations to be used – e.g. bar chart, line chart, scatter plot, map, etc.
-* **Interactivity**: Static vs. dynamic/interactive elements – filtering, drill-down, tooltips, linked views, etc.
-* **Narrative and annotation**: Text elements, storytelling structure, annotations and contextual information.
-* **Target medium and integration**: Embedding in the target environment – e.g. website, intranet, app, print, etc.
+The product combines two components:
 
-For each design decision, articulate the intended value along three dimensions:
+- **Interactive network dashboard (Streamlit):** force-directed graph with nodes as entities, edges as documented co-occurrences. Node size encodes betweenness centrality. Filterable by domain, time, and hop distance.
+- **Guided data story (Quarto/GitHub Pages):** narrative walkthrough of key findings with annotated charts and methodology documentation.
 
-* **Cognitive and analytical value**: How does the design amplify the user's ability to detect patterns, identify outliers, understand distributions or discover relationships [@card1999; @vanwijk2005]?
-* **Communicative value**: How does the design support the communication of information to the target audience profile(s)? 
-* **Experiential and aesthetic value**: How do the visual and interactive qualities of the design foster engagement, trust and willingness to adopt the product in practice?
+*[Detailed design decisions and value mapping (cognitive, communicative, experiential) – to be completed by team]*
 
-Justify the concept by mapping it explicitly to the project objectives and the user needs identified in the user analysis.
-
+---
 
 ## Project Plan
-Divide the project into individual phases, describe them briefly and draw up a preliminary timetable, e.g. as a Gantt chart:
 
 ```{mermaid}
 %%| label: fig-project-plan
 %%| fig-cap: Preliminary project plan in the form of a Gantt chart.
 gantt
-    title Project Plan
+    title Project Plan – Epstein Files Network Analysis
     dateFormat YYYY-MM-DD
-    tickInterval 5day
-    section Project Understanding
-        Initiation workshop and context analysis     :a1, 2024-07-01, 1d
-        Stakeholder and user analysis     :a3, 2024-07-02, 5d
-        Situation assessment    :a4, 2024-07-06, 1d
-        Project objectives and visualization concept    :a5, 2024-07-07, 1d
-        Sign project charta: milestone, m1, 2024-07-08, 1d
-    
-    section Data Acquisition and Exploration
-        Acquire data :a6, 2024-07-08, 3d
-        Exploratory data analysis   :a7, 2024-07-09, 2d
-        Discuss data report: milestone, m2, 2024-07-11, 1d
-        
-    section Visual Encoding and Design
-        Overview charts   :a8, 2024-07-11, 3d
-        Maps :a9, 2024-07-11, 5d
-        Implement Dashboard prototype :a10, 2024-07-16, 5d
-        Complete visualization report :a10, 2024-07-21, 1d
-    section Evaluation
-        Prepare presentation :a10, 2024-07-22, 2d
-        Project presentation : milestone, m2, 2024-07-24, 4m
+    tickInterval 7day
+
+    section Setup & Data
+        Repository & Quarto setup             :a1, 2026-02-17, 7d
+        Dataset loading & EDA                 :a2, 2026-02-24, 14d
+
+    section Analysis Pipeline
+        Entity extraction tests               :a3, 2026-03-03, 14d
+        Data model & feature engineering      :a4, 2026-03-17, 7d
+        Entity resolution & alias mapping     :a5, 2026-03-31, 14d
+        Network construction (NetworkX)       :a6, 2026-03-31, 14d
+        Network metrics (betweenness, structural holes) :a7, 2026-04-07, 14d
+
+    section Visualization
+        Streamlit prototype                   :a8, 2026-03-10, 14d
+        Dashboard refinement                  :a9, 2026-04-14, 14d
+        Data story drafting                   :a10, 2026-04-14, 14d
+        Data story finalized                  :a11, 2026-04-28, 7d
+        Deployment (Streamlit / GitHub Pages) :a12, 2026-04-28, 7d
+
+    section Coaching & Feedback
+        Concept coaching                      :milestone, m1, 2026-03-24, 1d
+        On-site coaching                      :milestone, m2, 2026-04-21, 1d
+        Online coaching                       :milestone, m3, 2026-04-28, 1d
+        On-site coaching                      :milestone, m4, 2026-05-05, 1d
+
+    section Finalization
+        Final testing & documentation         :a13, 2026-05-05, 14d
+        Presentation slides & rehearsal       :a14, 2026-05-19, 7d
+        Final presentation                    :milestone, m5, 2026-05-26, 1d
 ```
 
-See [Mermaid syntax for Gantt charts](https://mermaid.js.org/syntax/gantt.html). It might not be displayed correctly in Safari &#8594; use Chrome. [Live editor with export functionality](https://mermaid.live/)
+---
 
 ## Roles and Contact Details
-List the people involved in the development work here with their role titles, tasks and contact details.
+
+| Role | Name | Contact |
+|------|------|---------|
+| Student | Sendogan Kulakci | kulaksen@students.zhaw.ch |
+| Student | Lewis Birrer | *to be added* |
+| Lecturer | Dr. Manuel Dömer | doem@zhaw.ch |
