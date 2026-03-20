@@ -2,9 +2,9 @@
 title: "Personas"
 ---
 
-## Persona 1 – Sarah Thornton
+## Sarah Thornton
 
-![Sarah Thornton](images/sarah.png){width=200px style="border-radius: 50%; float: left; margin-right: 20px; margin-bottom: 10px;"}
+![Sarah Thornton](pics/sarah.png){width=200px style="border-radius: 50%; float: left; margin-right: 20px; margin-bottom: 10px;"}
 
 > *"I know there's a story hidden in these documents – I just need a way to see the full picture, not just individual pieces."*
 
@@ -51,9 +51,9 @@ Intensive but episodic – uses the tool heavily during active investigations, t
 
 ---
 
-## Persona 2 – Marcus Hoffmann
+## Marcus Hoffmann
 
-![Marcus Hoffmann](images/marcus.png){width=200px style="border-radius: 50%; float: left; margin-right: 20px; margin-bottom: 10px;"}
+![Marcus Hoffmann](pics/marcus.png){width=200px style="border-radius: 50%; float: left; margin-right: 20px; margin-bottom: 10px;"}
 
 > *"I followed the news about Epstein but I always felt like I only ever got fragments. I want to understand how it all fits together."*
 
