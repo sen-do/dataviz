@@ -7,14 +7,14 @@ language:
   section-title-appendices: "Appendix"
 
 website:
-  title: "Sample Project"
+  title: "Data Project - Epstein Files"
   search: true
   sidebar:
     style: "floating"
     search: true
     contents:
-      - index.qmd
       - project_charta.qmd
+      - index.qmd
       - data_report.qmd
       - viz_design_report.qmd
       - evaluation.qmd
