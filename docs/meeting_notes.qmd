@@ -1,44 +1,100 @@
-# Meeting Notes
+---
+title: "Meeting Notes"
+---
 
-Notes and decisions from the coaching sessions. You might also want to include notes from internal team meetings here, e.g. to document decisions that are relevant for the project and the development of the visualisation product. Sort in reverse chronological order (most recent first).
+Notes from coaching sessions and internal team meetings. Sorted in reverse chronological
+order (most recent first).
 
+---
 
-## 14.04.2022
+## 2026-05-05 — On-site coaching (final review)
 
-Topics:
+**Participants:** Sendogan Kulakci, Lewis Birrer, Dr. Manuel Dömer
 
-* topic 1
-* topic 2
-* ...
+**Topics discussed:**
 
-Decisions:
+- Walked through the deployed prototype at data.kulakci.de. Dömer noted the network
+  layout is interpretable and the provenance links are a strong feature.
+- Entity resolution discussed: Dömer confirmed that flagging it as a limitation and
+  planning it post-submission is sufficient for the grade criteria.
+- Quarto documentation reviewed; feedback: evaluation section should be more explicit
+  about what the betweenness values mean substantively, not just methodologically.
+  → Added a "sanity check" note: top-ranked entities align with known key figures.
+- Presentation slides to be completed by 2026-05-19.
 
-* decision 1
-* decision 2
-* ...
+**Decisions:**
 
-Next steps:
+- Submit pipeline + documentation as-is; entity resolution is future work.
+- Presentation to be 15 min + 5 min Q&A.
 
-* this
-* and that
-* ...
+---
 
-## 07.04.2022
+## 2026-04-21 — On-site coaching (prototype review)
 
-Topics:
+**Participants:** Sendogan Kulakci, Lewis Birrer, Dr. Manuel Dömer
 
-* topic 1
-* topic 2
-* ...
+**Topics discussed:**
 
-Decisions:
+- First working prototype demonstrated: Cosmograph WebGL frontend with real network
+  data from the 1 000-doc-per-stratum sample.
+- Performance was noticeably better than the earlier Streamlit prototype attempt.
+  Dömer asked about the tech stack change; team explained WebGL motivation.
+- NER quality discussed. Dömer pointed out that OCR noise is expected in this type of
+  corpus and that documenting it as a limitation is the right approach rather than
+  trying to fix it within the project scope.
+- Sidebar provenance links approved as a design feature.
 
-* decision 1
-* decision 2
-* ...
+**Decisions:**
 
-Next steps:
+- Keep Cosmograph. Update charta note to reflect stack change.
+- Add entity resolution as an explicit future-work item in evaluation.qmd.
 
-* this
-* and that
-* ...
+---
+
+## 2026-03-24 — Concept coaching
+
+**Participants:** Sendogan Kulakci, Lewis Birrer, Dr. Manuel Dömer
+
+**Topics discussed:**
+
+- Research question refined. Earlier version was too broad ("analyse Epstein connections").
+  Focused it on structural holes / bridge actors following Dömer's suggestion to ground
+  the concept theoretically.
+- Tech stack decision: Streamlit initially proposed; team flagged potential scalability
+  issues with large graphs. Dömer suggested evaluating D3 or a WebGL option.
+  → After the session, team evaluated Cosmograph and decided to use it.
+- Dataset confirmed: Nikity/Epstein-Files on HuggingFace. Dömer asked about provenance;
+  confirmed the dataset links back to DOJ source URLs.
+- Stratified sampling strategy discussed and approved (1 000 docs per stratum,
+  file_type == pdf, text_content not null).
+
+**Decisions:**
+
+- Research question finalised (see Project Charta).
+- Switch from Streamlit to React + Cosmograph WebGL.
+- Stratified sample as the primary dataset with SAMPLE_SIZE as a config variable.
+
+---
+
+## 2026-03-03 — Internal kick-off meeting
+
+**Participants:** Sendogan Kulakci, Lewis Birrer
+
+**Topics discussed:**
+
+- Reviewed the available dataset options. Decided on Nikity/Epstein-Files because:
+  (1) publicly available and legally unambiguous (DOJ provenance),
+  (2) pre-extracted text reduces preprocessing overhead,
+  (3) the subject matter is well-suited to network analysis (named individuals,
+      institutions, documented relationships).
+- Discussed scope constraints (2–3 hours/week each, 8–10 weeks). Agreed to use a
+  sampled subset rather than the full 4.1 M-row corpus.
+- Assigned roles: Sendogan leads Python pipeline; Lewis leads frontend; shared
+  documentation responsibility.
+- Repository set up from the dataviz-project-template.
+
+**Decisions:**
+
+- Dataset: Nikity/Epstein-Files.
+- Architecture: Python NER pipeline → network JSON → React WebGL frontend.
+- Documentation: Quarto on GitHub Pages (this site).

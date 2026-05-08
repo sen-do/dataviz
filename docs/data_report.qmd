@@ -1,147 +1,182 @@
-# Data Report
-All information on the data used in the project is compiled in the data report in order to ensure the traceability and reproducibility of the results and to enable a systematic expansion of the database.
+---
+title: "Data Report"
+---
 
-Typically, in the exploratory analysis of the acquired raw data, quality and other issues are identified, which require pre-processing, merging of individual datasets and feature engineering into processed datasets. Therefore, this template provides a separate section for the processed data, which then serves as a starting point for the modelling activities. This needs to be adapted to the specific project requirements.
+All information on the data used in the project is documented here to ensure
+traceability and reproducibility.
 
-## Raw data
-### Overview Raw Datasets
+---
+
+## Raw Data
+
+### Overview
 
 : Overview of raw datasets used in the project. {#tbl-raw-overview}
 
-| Name | Quelle | Storage location |
-|----------------|-----------------------------------------|--------------------------------------------------------------------------|
-| Dataset 1      | Name/short description of the data source | Link and/or short description of the location where the data is stored, e.g. accessible to the team |
-| Dataset 2      | …                                       | …                                                                        |
+| Name | Source | Storage |
+|---|---|---|
+| Nikity/Epstein-Files | HuggingFace (pre-extracted from DOJ/House Oversight source documents) | HuggingFace Hub — Parquet format, streamed via the `datasets` library |
 
-### Details Dataset 1
+### Nikity/Epstein-Files
 
-- Description of what information the dataset contains
-- Details of the data source/provider
-- Information on data procurement: description and possibly references to resources (download scripts, tools, online services, ...). Any new team member should be able to acquire the data indepentendently following these instructions.
-- Legal aspects of data use, licences, etc.
-- Data governance aspects: Categorisation of the data based on internal business requirements, e.g. public, business-relevant, personal
-- If applicable: categorisation into dependent (target variable, regressor) and independent (regressor) variables
-- ...
+The dataset aggregates legal documents, court records, emails, and related files from the
+Epstein-related releases by the U.S. Department of Justice and the U.S. House Oversight
+Committee. Text has been pre-extracted from PDF and image files using OCR.
+
+**Provenance:** Each row contains an `online_url` field linking to the original DOJ-hosted
+document, making the provenance of every data point independently verifiable.
+
+**Legal status:** The underlying documents are U.S. Government publications and are in the
+public domain. The HuggingFace dataset is a derived work that aggregates and processes
+these public records. No personally sensitive data is introduced beyond what is already
+part of the publicly released court record.
+
+**Data procurement:** The dataset is streamed directly from HuggingFace using the
+`datasets` library (`load_dataset(..., streaming=True)`). No bulk download is required.
+The pipeline reads only the rows needed for the stratified sample and discards the rest.
+A `HF_TOKEN` environment variable can be set in `.env` for authenticated access (higher
+rate limits), but is not required for this public dataset.
+
+**Quantity and structure:** The full dataset contains approximately 4.1 million rows
+across multiple sub-collections (`dataset_id`). The pipeline operates on a stratified
+sample (see [Processed Data](#processed-data)).
 
 #### Data Catalogue
-The data catalogue basically represents an extended schema of a relational database.
 
+: Data catalogue for Nikity/Epstein-Files. {#tbl-data-catalogue}
 
-: Data catalogue for Dataset 1. {#tbl-data-catalogue}
-
-| Column index | Column name |  Datatype | Values (Range, validation rules) | Short description |
+| # | Column | Type | Values / Range | Description |
 |---|---|---|---|---|
-| 1 |   |   |   |   |
-| 2 |   |   |   |   |
-|   |   |   |   |   |
+| 1 | `dataset_id` | string | e.g. `"epstein_court_documents"` | Identifies the sub-collection (stratum) within the dataset |
+| 2 | `doc_id` | string | e.g. `"doc_00042"` | Unique identifier for the source document |
+| 3 | `file_name` | string | e.g. `"deposition_2019-07-31.pdf"` | Original filename |
+| 4 | `file_type` | string | `"pdf"` or `"image"` | Source file type; pipeline filters to `"pdf"` |
+| 5 | `online_url` | string (URL) | `https://judiciary.house.gov/...` | Direct link to the original DOJ/House document |
+| 6 | `text_content` | string | variable length, 0–500 000+ chars | Pre-extracted text (OCR for scanned PDFs; structured extraction for digital PDFs) |
+| 7 | `metadata` | string (JSON) | varies by sub-collection | Additional document metadata (date, author, classification level) — not used in this pipeline version |
 
+---
 
-#### If applicable: Entity Relationship Diagram
+## EDA Results
 
+The plots below were generated by `eda/02_eda.py` from the stratified sample
+(see [Processed Data](#processed-data) for sampling details). All plots use the pipeline's
+dark theme (`#0D1117` background) for visual consistency with the frontend.
 
-#### Data Chracteristics and Quality
+### Document Count per Sub-collection
 
-The methods of exploratory data analysis are used to describe relevant characteristics of the data and identify data quality issues. This includes, for example, 
+![Document count per dataset_id in the stratified sample.](pics/docs_per_dataset.png){#fig-docs-per-dataset}
 
-the univariate andalysis of numerical variables:
+@fig-docs-per-dataset shows how many qualifying PDF documents were collected per stratum.
+Where a stratum bar reaches exactly `SAMPLE_SIZE` (1 000), the stratum was fully filled.
+Shorter bars indicate strata with fewer than 1 000 qualifying PDF documents — the pipeline
+collects all available documents rather than discarding the stratum.
 
-* Number or fraction
-    * of unique values
-    * of missing values
-    * of zero values
-    * of negative values
-* Frequency distribution
-* Extreme values (minimum and maximum)
-* Histogram
-* Measures of central tendency:
-    * arithmetic mean
-    * median
-    * mode
-* Measures of dispersion and visualisation of dispersion:
-    * Range
-    * Quantiles and interquartile range (IQR)
-    * Box plot
-    * Variance and standard deviation 
+### File Type Distribution
 
-and for categorical variables:
+![File type distribution in the sample (filtered to PDF).](pics/file_type_dist.png){#fig-file-type}
 
-* number of classes
-* and the corresponding distribution of values
-* fraction of missing values
+@fig-file-type shows the file type distribution in the sample. Because the pipeline
+filters to `file_type == "pdf"`, only PDF documents appear here. The original corpus
+also contains `"image"` documents (scanned pages not yet OCR-processed or stored as raw
+images); these are excluded because their `text_content` is either null or empty, making
+entity extraction impossible without a separate OCR step.
 
-The correlation between variables in the form of
+### Text Length Distribution
 
-* correlation coefficients (e.g. Pearson, Spearman, Kendall)
-* and corresponding visualizations, e.g. scatter plot, heatmap, grouped box plot (for categorical-numerical relationships), ...
+![Distribution of text length (characters) across sampled documents.](pics/text_length_hist.png){#fig-text-length}
 
+@fig-text-length shows the character length distribution of `text_content` across all
+sampled documents on a log-y scale (heavy right tail). Most documents are short-to-medium
+length (a few thousand characters), consistent with letter-format legal documents.
+A long right tail of very large documents corresponds to multi-page court transcripts and
+deposition records.
 
-The results the exploratory data analysis should be summarised here (code and full output in the `eda` subfolder) and the implications for the subsequent data pre-processing, visualization design and implementation steps should be discussed. Is the data quality and quantity sufficient to achieve the visualisation goals? Is it necessary to acquire additional or different data? Are there any limitations that need to be considered in the design and implementation of the visualisation product? Are there any specific data characteristics that can be used to enhance the visualisation design? For example, if there are a lot of missing values in a dataset, this might need to be taken into account in the design of the visualisation product, e.g. by using specific visual encodings to indicate missing values or by providing options for filtering or imputing missing values. 
+**OCR quality note:** Variation in text length partly reflects OCR quality rather than
+actual document length. Scanned PDFs with poor scan quality may produce very short
+(nearly empty) text extracts. The `MIN_OCCURRENCES` filter in the entity extraction step
+partially mitigates this by discarding entities that appear in very few documents (which
+tend to be OCR artefacts).
 
-Tip: `Ydata-profiling` is a Python library that can be used to perform exploratory data analysis and generate a comprehensive report on the characteristics of the data, including the distribution of values, missing values, correlations between variables, and more. This can be a useful tool to generate the full analysis in the code section and then only include the relevant information here in the data report.
+### Largest Documents
 
-This is an example on how to incorporate executable Python code and show a figure output:
+![Top 20 documents by text content length.](pics/top20_largest_docs.png){#fig-top20}
 
-```{python}
-#| label: fig-demo
-#| fig-cap: "Distribution of monthly revenue across product categories (sample data)."
-#| echo: true
-#| code-fold: true
-import matplotlib.pyplot as plt
+@fig-top20 identifies the 20 largest documents by character count. These are typically
+multi-session deposition transcripts or large court filings. Very long documents
+disproportionately contribute to co-occurrence edges (more entity pairs per document),
+which is a known limitation of document-level co-occurrence analysis.
 
-# Sample data
-categories = ['Electronics', 'Clothing', 'Food', 'Books', 'Sports']
-revenue = [42000, 28500, 35200, 12800, 19400]
+### Coverage and Completeness
 
-# Create the bar chart
-fig, ax = plt.subplots(figsize=(6, 3.75))
+The dataset does not document how its coverage relates to the full DOJ corpus. It is
+possible that some released documents are missing from the HuggingFace dataset, either
+due to processing failures or collection decisions by the dataset authors. The
+`online_url` field allows manual verification of individual documents, but a systematic
+completeness assessment is outside the scope of this project.
 
-bars = ax.bar(categories, revenue, color='#4C78A8', edgecolor='white')
+---
 
-ax.set_xlabel('Product Category')
-ax.set_title('Monthly Revenue by Product Category')
+## Processed Data {#processed-data}
 
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.spines['left'].set_visible(False)
-ax.yaxis.set_visible(False)
-ax.tick_params(axis='x', length=0)
+### Overview
 
-# Add value labels on bars
-for bar, val in zip(bars, revenue):
-    ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 500,
-            f'{val:,.0f}', ha='center', va='bottom', fontsize=9)
+: Overview of processed datasets. {#tbl-processed-overview}
 
-plt.tight_layout()
-plt.show()
+| Name | Source | Storage |
+|---|---|---|
+| Stratified sample | `Nikity/Epstein-Files` (filtered + sampled) | `eda/cache/sample.parquet` |
+| Entity nodes | Derived from sample via spaCy NER | `eda/cache/nodes.parquet` / `nodes.json` |
+| Co-occurrence edges | Derived from sample via co-occurrence counting | `eda/cache/edges.parquet` / `edges.json` |
+
+### Stratified Sample (`sample.parquet`)
+
+**Sampling strategy:** The pipeline keeps the first `SAMPLE_SIZE` qualifying documents
+per `dataset_id`. "Qualifying" means `file_type == "pdf"` and `text_content` is a
+non-empty, non-whitespace string.
+
+**Rationale:** Stratified sampling by `dataset_id` ensures each sub-collection is
+represented proportionally rather than allowing large strata to dominate. A purely random
+sample from the full 4.1 M-row corpus would likely undersample small but potentially
+important sub-collections (e.g. financial records, deposition transcripts).
+
+**Schema:** same columns as the raw dataset (see @tbl-data-catalogue), but limited to
+qualifying PDF rows.
+
+**Configuring sample size:** `SAMPLE_SIZE` is defined in `eda/config.py`. Increasing it
+(e.g. to 5 000) will improve entity coverage at the cost of longer streaming and NER time.
+
+### Entity Nodes and Edges
+
+**Extraction** (`eda/03_extract_entities.py`): spaCy `en_core_web_sm` NER extracts
+`PERSON` and `ORG` entities from `text_content`. Entities are normalised (lowercase,
+strip, collapse whitespace, trim punctuation artefacts) and filtered to those appearing
+in at least `MIN_OCCURRENCES` (= 3) documents.
+
+Install the model once with:
+```bash
+uv run python -m spacy download en_core_web_sm
 ```
 
-Then the figure can be referenced with @fig-demo.
+**Co-occurrence edges:** Two entities share an edge if they appear in the same document.
+Edge weight = number of shared documents. Edges below `MIN_EDGE_WEIGHT` (= 2) are
+discarded.
 
-## Processed Data
-### Overview Processed Datasets
+**Limitations:**
+- Entity resolution is **not** performed. "epstein", "jeffrey epstein", and "mr. epstein"
+  are treated as three distinct nodes. This is the primary analytical limitation.
+- `en_core_web_sm` has lower precision on OCR-noisy text than on clean newswire text.
+  NER recall is reduced for entities in poorly scanned documents.
+- Document-level co-occurrence over-estimates connection strength for very long documents.
 
-: Overview of processed datasets used in the project. {#tbl-processed-overview}
+### Network Visualisation
 
-| Name | Quelle | Storage location |
-|----------------|-----------------------------------------|--------------------------------------------------------------------------|
-| Processed Dataset 1      | Name/short description of the data source | Link and/or short description of the location where the data is stored, e.g. accessible to the team |
-| Processed Dataset 2      | …                                       | …                                                                        |
+![Epstein Files co-occurrence network. Node size = betweenness centrality, node colour = Louvain community.](pics/network.png){#fig-network}
 
-### Details Processed Dataset 1
+@fig-network shows the co-occurrence network derived from the stratified sample.
+Node size encodes betweenness centrality (bridge actors are large). Node colour
+encodes community membership (Louvain algorithm). Edge width encodes co-occurrence
+weight. Only the top 30 nodes by betweenness are labelled to reduce clutter.
 
-- Description of what information the dataset contains
-- Details and reasons for the processing steps -> Traceability and ensuring reproducibility
-- How can the data be accessed? Description, scripts, tools, ...
-- ...
-
-#### Data Catalogue
-
-
-#### If applicable: Entity Relationship Diagram
-
-
-#### Data Chracteristics and Quality
-
-
-### Details Processed Dataset 2
-...
+The largest connected component is used for all metrics. The full export
+(`nodes.json`, `edges.json`) includes all nodes and edges for the interactive frontend.
