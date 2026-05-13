@@ -77,7 +77,11 @@ The product combines two components:
 - **Interactive network dashboard (Streamlit):** force-directed graph with nodes as entities, edges as documented co-occurrences. Node size encodes betweenness centrality. Filterable by domain, time, and hop distance.
 - **Guided data story (Quarto/GitHub Pages):** narrative walkthrough of key findings with annotated charts and methodology documentation.
 
-*[Detailed design decisions and value mapping (cognitive, communicative, experiential) – to be completed by team]*
+The visualization maps three value dimensions:
+
+- **Cognitive:** betweenness centrality encoded as node size lets users immediately identify structural bridge actors without reading labels — the most analytically important information is pre-attentively visible.
+- **Communicative:** community membership encoded as colour separates domain clusters (legal, financial, personal) at a glance; edge width encodes co-occurrence strength so dense connections stand out; labels are shown only for top nodes to avoid clutter.
+- **Experiential:** a fullscreen force-directed canvas with hover tooltips, click-to-detail sidebar, and direct links to DOJ source documents supports both open-ended exploration and targeted provenance checking.
 
 ---
 
