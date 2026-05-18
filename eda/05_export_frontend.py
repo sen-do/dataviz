@@ -107,6 +107,7 @@ def main() -> None:
                 "degree": node.get("degree", 0),
                 "occurrences": node.get("occurrences", 0),
                 "community": node.get("community", 0),
+                "clustering_coefficient": node.get("clustering", 0.0),
                 "source_docs": source_docs,
             }
         )

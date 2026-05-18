@@ -12,6 +12,7 @@ export interface GraphNode {
   degree: number;
   occurrences: number;
   community: number;
+  clustering_coefficient: number;
   source_docs: SourceDoc[];
 }
 
@@ -19,9 +20,4 @@ export interface GraphEdge {
   source: string;
   target: string;
   weight: number;
-}
-
-export interface GraphData {
-  nodes: GraphNode[];
-  edges: GraphEdge[];
 }

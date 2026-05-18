@@ -1,7 +1,7 @@
 [
-  {"id":"jeffrey epstein","label":"jeffrey epstein","type":"PERSON","betweenness_centrality":0.45,"degree":12,"occurrences":87,"community":0,"source_docs":[]},
-  {"id":"ghislaine maxwell","label":"ghislaine maxwell","type":"PERSON","betweenness_centrality":0.31,"degree":9,"occurrences":54,"community":0,"source_docs":[]},
-  {"id":"southern district of new york","label":"southern district of new york","type":"ORG","betweenness_centrality":0.18,"degree":7,"occurrences":41,"community":1,"source_docs":[]},
-  {"id":"department of justice","label":"department of justice","type":"ORG","betweenness_centrality":0.12,"degree":5,"occurrences":29,"community":1,"source_docs":[]},
-  {"id":"alison nathan","label":"alison nathan","type":"PERSON","betweenness_centrality":0.09,"degree":4,"occurrences":18,"community":2,"source_docs":[]}
+  {"id":"jeffrey epstein","label":"jeffrey epstein","type":"PERSON","betweenness_centrality":0.45,"degree":12,"occurrences":87,"community":0,"clustering_coefficient":0.21,"source_docs":[]},
+  {"id":"ghislaine maxwell","label":"ghislaine maxwell","type":"PERSON","betweenness_centrality":0.31,"degree":9,"occurrences":54,"community":0,"clustering_coefficient":0.33,"source_docs":[]},
+  {"id":"southern district of new york","label":"southern district of new york","type":"ORG","betweenness_centrality":0.18,"degree":7,"occurrences":41,"community":1,"clustering_coefficient":0.47,"source_docs":[]},
+  {"id":"department of justice","label":"department of justice","type":"ORG","betweenness_centrality":0.12,"degree":5,"occurrences":29,"community":1,"clustering_coefficient":0.55,"source_docs":[]},
+  {"id":"alison nathan","label":"alison nathan","type":"PERSON","betweenness_centrality":0.09,"degree":4,"occurrences":18,"community":2,"clustering_coefficient":0.62,"source_docs":[]}
 ]
