@@ -2,17 +2,62 @@ import { useMemo, useState } from "react";
 import { useGraphStore, useSelectedNode } from "@/store";
 import { communityColor } from "@/lib/colors";
 import { cosmographRef } from "@/graphRef";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
+const SIDEBAR_WIDTH = 288;
 const MAX_SEARCH_RESULTS = 8;
 const MAX_SOURCE_DOCS = 5;
 
 export function Sidebar() {
+  const sidebarOpen = useGraphStore((s) => s.sidebarOpen);
+  const setSidebarOpen = useGraphStore((s) => s.setSidebarOpen);
   const selectedNode = useSelectedNode();
 
   return (
-    <aside className="fixed top-12 right-0 bottom-0 z-20 w-72 bg-[#0d1117]/80 backdrop-blur-md border-l border-white/10 flex flex-col overflow-hidden">
-      {selectedNode ? <NodeDetail /> : <DefaultView />}
-    </aside>
+    <>
+      {/* Sidebar panel */}
+      <aside
+        className="fixed top-12 bottom-0 left-0 z-20 flex flex-col overflow-hidden"
+        style={{
+          width: SIDEBAR_WIDTH,
+          background: "oklch(0.09 0 0)",
+          border: "1px solid oklch(0.2 0 0)",
+          borderLeft: "none",
+          borderRadius: "0 20px 20px 0",
+          transform: sidebarOpen ? "translateX(0)" : `translateX(-${SIDEBAR_WIDTH}px)`,
+          transition: "transform 300ms ease",
+        }}
+      >
+        {selectedNode ? <NodeDetail /> : <DefaultView />}
+      </aside>
+
+      {/* Collapse toggle — follows the right edge of the sidebar */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        className="fixed z-30 top-1/2 -translate-y-1/2 flex items-center justify-center"
+        style={{
+          left: sidebarOpen ? SIDEBAR_WIDTH - 12 : 0,
+          width: 24,
+          height: 48,
+          background: "oklch(0.12 0 0)",
+          border: "1px solid oklch(0.2 0 0)",
+          borderLeft: sidebarOpen ? "none" : "1px solid oklch(0.2 0 0)",
+          borderRadius: sidebarOpen ? "0 8px 8px 0" : "0 8px 8px 0",
+          transition: "left 300ms ease",
+          cursor: "pointer",
+          color: "oklch(0.5 0 0)",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "white")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "oklch(0.5 0 0)")}
+      >
+        <span style={{ fontSize: 10, lineHeight: 1 }}>
+          {sidebarOpen ? "‹" : "›"}
+        </span>
+      </button>
+    </>
   );
 }
 
@@ -30,11 +75,6 @@ function DefaultView() {
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Network stats
-  const totalNodes = nodes.length;
-  const totalEdges = edges.length;
-
-  // Top 5 bridge actors by betweenness
   const top5 = useMemo(
     () =>
       [...nodes]
@@ -43,7 +83,6 @@ function DefaultView() {
     [nodes]
   );
 
-  // Search results
   const searchResults = useMemo(() => {
     if (!query.trim()) return [];
     const q = query.toLowerCase();
@@ -63,40 +102,36 @@ function DefaultView() {
     [allCommunities]
   );
 
-  const allActive = activeCommunities.size === allCommunities.size;
-
   return (
-    <div className="flex flex-col gap-5 p-4 overflow-y-auto">
+    <div className="flex flex-col gap-0 overflow-y-auto h-full py-4 text-sm">
       {/* Stats */}
-      <div>
-        <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Network</p>
+      <Section label="Network">
         <div className="grid grid-cols-2 gap-2">
-          <Stat label="Nodes" value={totalNodes.toLocaleString()} />
-          <Stat label="Edges" value={totalEdges.toLocaleString()} />
+          <StatCard label="Nodes" value={nodes.length.toLocaleString()} />
+          <StatCard label="Edges" value={edges.length.toLocaleString()} />
         </div>
-      </div>
+      </Section>
+
+      <SidebarSeparator />
 
       {/* Search */}
-      <div>
-        <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Search</p>
+      <Section label="Search">
         <div className="relative">
-          <input
-            className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-1.5 text-sm text-white placeholder:text-white/30 outline-none focus:border-white/30"
+          <Input
             placeholder="Search entity…"
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setShowDropdown(true);
-            }}
+            onChange={(e) => { setQuery(e.target.value); setShowDropdown(true); }}
             onFocus={() => setShowDropdown(true)}
             onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+            className="bg-white/5 border-zinc-700 text-white placeholder:text-zinc-500 h-8 text-xs rounded-lg focus-visible:border-zinc-500 focus-visible:ring-0"
           />
           {showDropdown && searchResults.length > 0 && (
-            <ul className="absolute top-full left-0 right-0 mt-1 bg-[#161b22] border border-white/10 rounded-md overflow-hidden z-30">
+            <ul className="absolute top-full left-0 right-0 mt-1 z-30 overflow-hidden rounded-xl border border-zinc-800"
+              style={{ background: "oklch(0.12 0 0)" }}>
               {searchResults.map((n) => (
                 <li key={n.id}>
                   <button
-                    className="w-full text-left px-3 py-2 text-sm text-white/80 hover:bg-white/10 capitalize"
+                    className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-white/10 capitalize"
                     onMouseDown={() => selectNode(n.id)}
                   >
                     {n.label}
@@ -106,46 +141,47 @@ function DefaultView() {
             </ul>
           )}
         </div>
-      </div>
+      </Section>
+
+      <SidebarSeparator />
 
       {/* Top 5 bridges */}
-      <div>
-        <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">
-          Top structural bridges
-        </p>
-        <ul className="space-y-1">
+      <Section label="Top structural bridges">
+        <ul className="space-y-0.5">
           {top5.map((n, i) => (
             <li key={n.id}>
               <button
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 text-left group"
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-white/5 text-left group transition-colors"
                 onClick={() => selectNode(n.id)}
               >
-                <span className="text-white/20 text-xs w-4 shrink-0">{i + 1}</span>
+                <span className="text-zinc-600 text-xs w-3 shrink-0 tabular-nums">{i + 1}</span>
                 <span
                   className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: communityColor(n.community) }}
                 />
-                <span className="text-sm text-white/80 group-hover:text-white capitalize truncate flex-1">
+                <span className="text-xs text-zinc-300 group-hover:text-white capitalize truncate flex-1 transition-colors">
                   {n.label}
                 </span>
-                <span className="text-xs text-white/30 tabular-nums shrink-0">
+                <span className="text-[10px] text-zinc-500 tabular-nums shrink-0">
                   {(n.betweenness_centrality * 100).toFixed(2)}%
                 </span>
               </button>
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
-      {/* Domain filter */}
-      <div>
+      <SidebarSeparator />
+
+      {/* Community filter */}
+      <Section label="Communities">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] text-white/30 uppercase tracking-widest">Communities</p>
+          <span />
           <button
-            className="text-[10px] text-white/30 hover:text-white/60"
-            onClick={() => setAllCommunities(!allActive)}
+            className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
+            onClick={() => setAllCommunities(activeCommunities.size < allCommunities.size)}
           >
-            {allActive ? "Hide all" : "Show all"}
+            {activeCommunities.size < allCommunities.size ? "Show all" : "Hide all"}
           </button>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -155,10 +191,10 @@ function DefaultView() {
               <button
                 key={c}
                 onClick={() => toggleCommunity(c)}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs border transition-opacity ${
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[11px] border transition-all ${
                   active
-                    ? "border-white/20 text-white/70"
-                    : "border-white/10 text-white/20 opacity-50"
+                    ? "border-zinc-600 text-zinc-300"
+                    : "border-zinc-800 text-zinc-600 opacity-50"
                 }`}
               >
                 <span
@@ -170,7 +206,7 @@ function DefaultView() {
             );
           })}
         </div>
-      </div>
+      </Section>
     </div>
   );
 }
@@ -186,83 +222,78 @@ function NodeDetail() {
   const color = communityColor(node.community);
 
   return (
-    <div className="flex flex-col overflow-hidden h-full">
+    <div className="flex flex-col h-full overflow-hidden text-sm">
       {/* Back */}
       <button
-        className="flex items-center gap-1.5 px-4 py-3 text-xs text-white/40 hover:text-white/70 border-b border-white/10"
+        className="flex items-center gap-1.5 px-4 py-3 text-xs text-zinc-500 hover:text-zinc-200 transition-colors border-b border-zinc-800/60 shrink-0"
         onClick={() => setSelectedNode(null)}
       >
-        ← Back
+        <span className="text-[10px]">←</span> Back
       </button>
 
-      <div className="flex flex-col gap-4 p-4 overflow-y-auto flex-1">
+      <div className="flex flex-col gap-0 overflow-y-auto flex-1 py-4">
         {/* Entity header */}
-        <div>
-          <div className="flex items-center gap-2 mb-1">
+        <Section label={undefined}>
+          <div className="flex items-center gap-2 mb-2">
+            <Badge
+              variant="outline"
+              className="text-[10px] px-1.5 py-0 rounded-full border-zinc-700 text-zinc-400"
+            >
+              {node.type}
+            </Badge>
             <span
-              className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: color }}
-            />
-            <span
-              className="text-[10px] px-1.5 py-0.5 rounded-full border text-white/50"
-              style={{ borderColor: `${color}60` }}
+              className="text-[10px] px-1.5 py-0.5 rounded-full border"
+              style={{ borderColor: `${color}50`, color }}
             >
               Community {node.community}
             </span>
-            <span className="text-[10px] text-white/30 uppercase">{node.type}</span>
           </div>
-          <h2 className="text-white font-semibold text-base capitalize leading-snug">
+          <h2 className="text-white font-semibold text-sm capitalize leading-snug">
             {node.label}
           </h2>
-        </div>
+        </Section>
+
+        <SidebarSeparator />
 
         {/* Metrics */}
-        <div>
-          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Metrics</p>
+        <Section label="Metrics">
           <div className="grid grid-cols-3 gap-2">
-            <Stat
-              label="Betweenness"
-              value={`${(node.betweenness_centrality * 100).toFixed(2)}%`}
-            />
-            <Stat label="Degree" value={String(node.degree)} />
-            <Stat
+            <StatCard label="Betweenness" value={`${(node.betweenness_centrality * 100).toFixed(2)}%`} />
+            <StatCard label="Degree" value={String(node.degree)} />
+            <StatCard
               label="Clustering"
-              value={
-                node.clustering_coefficient != null
-                  ? node.clustering_coefficient.toFixed(3)
-                  : "—"
-              }
+              value={node.clustering_coefficient != null ? node.clustering_coefficient.toFixed(3) : "—"}
             />
           </div>
-        </div>
+        </Section>
 
-        {/* Ego-network toggle */}
-        <div>
-          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">View</p>
+        <SidebarSeparator />
+
+        {/* Ego toggle */}
+        <Section label="View">
           <button
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-md border text-sm transition-colors ${
-              egoMode
-                ? "bg-white/10 border-white/30 text-white"
-                : "bg-white/0 border-white/10 text-white/50 hover:border-white/20 hover:text-white/70"
-            }`}
             onClick={() => setEgoMode(!egoMode)}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs transition-all ${
+              egoMode
+                ? "bg-white/10 border-zinc-600 text-white"
+                : "bg-transparent border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+            }`}
           >
-            <span>Show only neighbors</span>
+            Show only neighbors
             <span
               className={`w-3.5 h-3.5 rounded-full border-2 transition-colors ${
-                egoMode ? "bg-white border-white" : "bg-transparent border-white/30"
+                egoMode ? "bg-white border-white" : "bg-transparent border-zinc-600"
               }`}
             />
           </button>
-        </div>
+        </Section>
 
-        {/* Source documents */}
-        <div>
-          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">
-            Source documents
-          </p>
+        <SidebarSeparator />
+
+        {/* Source docs */}
+        <Section label="Source documents">
           {node.source_docs.length === 0 ? (
-            <p className="text-xs text-white/30 italic">No documents linked.</p>
+            <p className="text-xs text-zinc-600 italic">No documents linked.</p>
           ) : (
             <ul className="space-y-2">
               {node.source_docs.slice(0, MAX_SOURCE_DOCS).map((doc) => (
@@ -271,32 +302,49 @@ function NodeDetail() {
                     href={doc.online_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-400 hover:text-blue-300 hover:underline break-all leading-relaxed block"
+                    className="text-xs text-blue-400/80 hover:text-blue-400 hover:underline break-all leading-relaxed block transition-colors"
                   >
                     {doc.file_name || doc.doc_id}
                   </a>
                 </li>
               ))}
               {node.source_docs.length > MAX_SOURCE_DOCS && (
-                <li className="text-xs text-white/30">
+                <li className="text-[10px] text-zinc-600">
                   +{node.source_docs.length - MAX_SOURCE_DOCS} more
                 </li>
               )}
             </ul>
           )}
-        </div>
+        </Section>
       </div>
     </div>
   );
 }
 
-/* ─── Shared ───────────────────────────────────────────────────────────── */
+/* ─── Shared primitives ────────────────────────────────────────────────── */
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Section({ label, children }: { label?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/5 rounded-md px-2.5 py-2">
-      <p className="text-[10px] text-white/30 mb-0.5 truncate">{label}</p>
-      <p className="text-sm text-white font-medium tabular-nums">{value}</p>
+    <div className="px-4 py-3">
+      {label && (
+        <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-2.5 font-medium">
+          {label}
+        </p>
+      )}
+      {children}
+    </div>
+  );
+}
+
+function SidebarSeparator() {
+  return <Separator className="bg-zinc-800/60 mx-4" style={{ width: "calc(100% - 32px)" }} />;
+}
+
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl px-2.5 py-2" style={{ background: "oklch(0.13 0 0)" }}>
+      <p className="text-[10px] text-zinc-500 mb-0.5 truncate">{label}</p>
+      <p className="text-xs text-white font-medium tabular-nums">{value}</p>
     </div>
   );
 }

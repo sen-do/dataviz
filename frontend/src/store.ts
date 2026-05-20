@@ -2,24 +2,23 @@ import { create } from "zustand";
 import type { GraphNode, GraphEdge } from "@/types";
 
 interface GraphStore {
-  // Data — nodes order is preserved to match Cosmograph point indices
   nodes: GraphNode[];
   edges: GraphEdge[];
   allCommunities: Set<number>;
   setGraphData: (nodes: GraphNode[], edges: GraphEdge[]) => void;
 
-  // Selection
   selectedNodeId: string | null;
   setSelectedNode: (id: string | null) => void;
 
-  // Community visibility filter (toggled by chips)
   activeCommunities: Set<number>;
   toggleCommunity: (community: number) => void;
   setAllCommunities: (active: boolean) => void;
 
-  // Ego-network mode (show only selected node + neighbours)
   egoMode: boolean;
   setEgoMode: (on: boolean) => void;
+
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
 }
 
 export const useGraphStore = create<GraphStore>((set, get) => ({
@@ -41,12 +40,14 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
     else next.add(community);
     set({ activeCommunities: next });
   },
-  setAllCommunities: (active) => {
-    set({ activeCommunities: active ? new Set(get().allCommunities) : new Set() });
-  },
+  setAllCommunities: (active) =>
+    set({ activeCommunities: active ? new Set(get().allCommunities) : new Set() }),
 
   egoMode: false,
   setEgoMode: (on) => set({ egoMode: on }),
+
+  sidebarOpen: true,
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
 }));
 
 export function useSelectedNode(): GraphNode | null {
