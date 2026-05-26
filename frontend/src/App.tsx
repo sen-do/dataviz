@@ -1,13 +1,9 @@
 import { Navbar } from "@/components/Navbar";
 import { GraphView } from "@/components/GraphView";
 import { Sidebar } from "@/components/Sidebar";
-import { useGraphStore } from "@/store";
-
-const SIDEBAR_WIDTH = 288;
+import { MapControls } from "@/components/MapControls";
 
 export default function App() {
-  const sidebarOpen = useGraphStore((s) => s.sidebarOpen);
-
   return (
     <div
       className="dark"
@@ -15,12 +11,9 @@ export default function App() {
     >
       <Navbar />
       <Sidebar />
+      <MapControls />
 
-      {/* Graph canvas shifts right when sidebar is open */}
-      <div
-        className="absolute top-12 bottom-0 right-0 transition-[left] duration-300 ease-in-out"
-        style={{ left: sidebarOpen ? SIDEBAR_WIDTH : 0 }}
-      >
+      <div className="absolute top-0 bottom-0 left-0 right-0">
         <GraphView />
       </div>
     </div>
