@@ -2,6 +2,21 @@ import { useMemo, useState } from "react";
 import { useGraphStore, useSelectedNode } from "@/store";
 import { cosmographRef } from "@/graphRef";
 import { communityColor } from "@/lib/colors";
+
+// Human-readable community names derived from top-betweenness nodes per cluster
+const COMMUNITY_NAMES: Record<number, string> = {
+  0:  "JPMorgan & SEC",
+  1:  "Island & Aviation",
+  2:  "Deutsche Bank",
+  3:  "Logistics",
+  4:  "Epstein Core",
+  5:  "Personal Staff",
+  6:  "Investment Funds",
+  7:  "Inner Circle",
+  8:  "Academic",
+  9:  "Government",
+  10: "Maxwell & Legal",
+};
 import { Switch } from "@/components/ui/switch";
 import type { GraphNode } from "@/types";
 
@@ -349,23 +364,30 @@ function DefaultView({ setTrail }: DefaultViewProps) {
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {filteredCommunities.map((c) => {
           const active = activeCommunities.has(c);
+          const color = communityColor(c);
+          const name = COMMUNITY_NAMES[c] ?? `Group ${c}`;
           return (
             <button
               key={c}
               onClick={() => toggleCommunity(c)}
+              title={name}
               style={{
                 borderRadius: 9999,
-                padding: "4px 12px",
-                fontSize: 12,
-                border: active ? "1px solid transparent" : "1px solid #27272a",
-                background: active ? "white" : "#18181b",
-                color: active ? "#09090b" : "#a1a1aa",
+                padding: "4px 10px",
+                fontSize: 11,
+                border: active ? `1px solid ${color}44` : "1px solid #27272a",
+                background: active ? `${color}22` : "#18181b",
+                color: active ? color : "#71717a",
                 cursor: "pointer",
                 fontFamily: "inherit",
                 transition: "all 150ms",
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
               }}
             >
-              {c}
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: active ? color : "#3f3f46", flexShrink: 0 }} />
+              {name}
             </button>
           );
         })}
@@ -570,15 +592,16 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
           <span
             style={{
               display: "inline-block",
-              background: "#27272a",
-              color: "#d4d4d8",
+              background: `${communityColor(node.community)}22`,
+              color: communityColor(node.community),
+              border: `1px solid ${communityColor(node.community)}44`,
               fontSize: 11,
               borderRadius: 9999,
               padding: "2px 10px",
               marginBottom: 8,
             }}
           >
-            Community {node.community}
+            {COMMUNITY_NAMES[node.community] ?? `Group ${node.community}`}
           </span>
           <h2
             style={{

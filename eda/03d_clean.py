@@ -173,6 +173,79 @@ STOPLIST: frozenset[str] = frozenset(
         "imap",                     # email protocol, not an entity
         "refer",                    # generic document term
         "chris",                    # too ambiguous
+        # Round 4 — visible in deployed screenshot / community inspection
+        "doc",                      # too generic
+        "state",                    # too generic
+        "suite",                    # address component
+        "memorandum",               # document type
+        "ssn",                      # social security number field
+        "morgan",                   # ambiguous (jpmorgan chase is canonical)
+        "fund",                     # too generic
+        "partners",                 # too generic
+        "offer",                    # too generic
+        "sale",                     # too generic
+        "seller",                   # too generic
+        "issuer",                   # legal/financial boilerplate
+        "trustee",                  # legal role, too generic
+        "terms and conditions",     # boilerplate
+        "time",                     # too generic
+        "date",                     # too generic (email metadata)
+        "bill",                     # too ambiguous
+        "cough",                    # OCR noise
+        "max",                      # too ambiguous
+        "p.o. box",                 # address component
+        "ave",                      # street abbreviation
+        "address",                  # too generic
+        "invoice questions",        # boilerplate
+        "width",                    # HTML attribute noise
+        "eur",                      # currency code, not entity
+        "usd",                      # currency code, not entity
+        "the arts 4000",            # unclear artifact
+        "appendix iiare",           # document artifact
+        "carried interest",         # financial concept, not entity
+        "kettle primary account",   # account label noise
+        "trust account account",    # repetitive noise
+        "jpmorgan private bank page 4",  # document artifact
+        "index",                    # too generic
+        "attn",                     # email prefix
+        "tel",                      # telephone prefix
+        "stt",                      # unclear abbreviation
+        "boxers",                   # OCR noise
+        "house",                    # too generic
+        "rsd",                      # unclear abbreviation
+        "cfm",                      # unclear abbreviation
+        "zorro",                    # OCR noise / unclear
+        "karen",                    # too ambiguous
+        "gary",                     # too ambiguous
+        "james",                    # too ambiguous
+        "alan",                     # too ambiguous
+        "dot & bo sent: thur",      # email header artifact
+        "russell date: mon",        # email header artifact
+        "island- long blah",        # OCR artifact
+        "richard - jeffrey's",      # possessive fragment
+        "point person",             # generic term
+        "mime type: compuserve graphic interchange format black",  # total garbage
+        "mcc administrators",       # unclear
+        "the partnership",          # too generic
+        "financial services",       # too generic
+        "confidential private placement",  # document header
+        "pllc",                     # legal suffix noise
+        "weiss",                    # too ambiguous
+        "cynthia",                  # too ambiguous
+        "jessica",                  # too ambiguous
+        "alexander",                # too ambiguous
+        "efta",                     # ambiguous
+        "p.o. box",                 # duplicate
+        "coo",                      # corporate title
+        "csts",                     # unclear abbreviation
+        "invoice questions",        # duplicate
+        "memorandum",               # duplicate
+        "general partner",          # too generic
+        "the general partner",      # too generic
+        "private bank",             # too generic
+        "pllc",                     # legal suffix
+        "slome",                    # partial name
+        "ian slome",                # borderline — keep if full name
     }
 )
 

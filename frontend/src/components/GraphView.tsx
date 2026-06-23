@@ -7,15 +7,26 @@ import { cosmographRef } from "@/graphRef";
 import { COMMUNITY_COLORS } from "@/lib/colors";
 import type { GraphNode, GraphEdge } from "@/types";
 
-const LABEL_TOP_N = 40;
+// Only label the top-N bridges even when zoomed in
+const LABEL_TOP_N = 25;
+
+// Only pass strong edges to Cosmograph for layout — reduces force-graph density
+// so cluster repulsion can visually separate communities. All edges stay in the
+// store for sidebar stats and neighbor computation.
+const LAYOUT_EDGE_MIN_WEIGHT = 10;
 
 function buildCosmographConfig(nodes: GraphNode[], edges: GraphEdge[]): Promise<CosmographConfig> {
-  // Scale betweenness to visible size range (5–20px)
   const bcMax = Math.max(...nodes.map((n) => n.betweenness_centrality)) || 1;
+
+  // Power-law size scaling: makes Epstein visibly dominant,
+  // intermediate bridges clearly larger than peripheral nodes.
   const nodesForCosmo = nodes.map(({ source_docs: _, wikidata_description: __, ...rest }) => ({
     ...rest,
-    _size: 5 + (rest.betweenness_centrality / bcMax) * 15,
+    _size: 3 + Math.pow(rest.betweenness_centrality / bcMax, 0.35) * 27,
   }));
+
+  // Only strong co-occurrence edges drive the physics layout.
+  const layoutEdges = edges.filter((e) => e.weight >= LAYOUT_EDGE_MIN_WEIGHT);
 
   const dataConfig = {
     points: {
@@ -38,7 +49,7 @@ function buildCosmographConfig(nodes: GraphNode[], edges: GraphEdge[]): Promise<
   return prepareCosmographData(
     dataConfig,
     nodesForCosmo as unknown as Record<string, unknown>[],
-    edges as unknown as Record<string, unknown>[],
+    layoutEdges as unknown as Record<string, unknown>[],
   ).then((result) => {
     if (!result) throw new Error("prepareCosmographData returned null");
     const { points, links, cosmographConfig } = result;
@@ -62,7 +73,6 @@ export function GraphView() {
   const [ready, setReady] = useState(false);
   const [zoomedIn, setZoomedIn] = useState(false);
 
-  // Load full data once
   useEffect(() => {
     loadGraph()
       .then(({ orderedNodes: allNodes, edges: allEdges }) => {
@@ -75,7 +85,6 @@ export function GraphView() {
       });
   }, [setGraphData]);
 
-  // Rebuild cosmograph data whenever filter changes
   useEffect(() => {
     if (fullNodes.length === 0) return;
 
@@ -94,7 +103,6 @@ export function GraphView() {
       .then(() => setReady(true));
   }, [fullNodes, fullEdges, activeCommunities, minConnections]);
 
-  // Ego-network: imperatively select the node + its neighbours via ref.
   useEffect(() => {
     const ref = cosmographRef.current;
     if (!ref) return;
@@ -106,17 +114,15 @@ export function GraphView() {
     if (idx >= 0) ref.selectPoint?.(idx, true, true);
   }, [egoMode, selectedNodeId, orderedNodes]);
 
-  // Clear ego selection when node is deselected.
   useEffect(() => {
     if (!selectedNodeId) cosmographRef.current?.unselectAllPoints?.();
   }, [selectedNodeId]);
 
-  // Force-stop simulation after timeout (dense graphs never fully stabilize)
   useEffect(() => {
     if (!ready) return;
     const timer = setTimeout(() => {
       cosmographRef.current?.stop?.();
-    }, 30_000);
+    }, 45_000);
     return () => clearTimeout(timer);
   }, [ready]);
 
@@ -150,35 +156,35 @@ export function GraphView() {
         ref={cosmographRef}
         {...cosmographConfig}
         {...{
-          // Rendering
           background_color: "#0D1117",
-          space_size: 8192,
-          point_size_scale: 0.8,
-          // Edges — white at low opacity; width from co-occurrence weight
+          space_size: 16384,
+          point_size_scale: 0.9,
+          // Edges — subtle white, visible only when nearby
           link_default_color: "#FFFFFF",
-          link_opacity: 0.15,
-          link_visibility_distance_range: [5, 80],
-          link_visibility_min_transparency: 0.03,
-          link_greyout_opacity: 0.03,
+          link_opacity: 0.12,
+          link_visibility_distance_range: [5, 100],
+          link_visibility_min_transparency: 0.02,
+          link_greyout_opacity: 0.02,
           scale_points_on_zoom: true,
           scale_links_on_zoom: true,
-          // Labels — show cluster names when zoomed out, point labels when zoomed in
+          // Labels — cluster overview vs node names when zoomed in
           show_labels: zoomedIn,
           show_top_labels: zoomedIn,
           show_labels_for: zoomedIn ? labelNodeIds : undefined,
           show_cluster_labels: !zoomedIn,
           point_label_color: "#ffffff",
-          cluster_label_font_size: 14,
+          cluster_label_font_size: 16,
           scale_cluster_labels: true,
-          // Physics — tuned for curated 1500-node graph
-          simulation_gravity: 0.1,
-          simulation_repulsion: 2.0,
-          simulation_link_spring: 0.3,
+          // Physics — strong community clustering, weak link spring, wide repulsion
+          // Goal: communities visually separate like islands, bridges visible between them
+          simulation_gravity: 0.02,
+          simulation_repulsion: 5.0,
+          simulation_repulsion_theta: 1.7,
+          simulation_link_spring: 0.05,
+          simulation_link_distance: 10,
           simulation_friction: 0.85,
-          simulation_decay: 3000,
-          simulation_repulsion_theta: 1.5,
-          simulation_cluster: 0.5,
-          // View
+          simulation_decay: 8000,
+          simulation_cluster: 3.0,
           fit_view_on_init: true,
           enable_simulation: true,
         } as CosmographConfig}
@@ -187,7 +193,7 @@ export function GraphView() {
         }}
         onZoom={() => {
           const zoom = cosmographRef.current?.getZoomLevel?.() ?? 0;
-          setZoomedIn(zoom > 2.5);
+          setZoomedIn(zoom > 3.5);
         }}
         onPointClick={(index: number) => {
           const node = orderedNodes[index];
