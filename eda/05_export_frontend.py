@@ -109,12 +109,19 @@ def main() -> None:
                 "community": node.get("community", 0),
                 "clustering_coefficient": node.get("clustering", 0.0),
                 "source_docs": source_docs,
+                "wikidata_id": node.get("wikidata_id"),
+                "wikidata_description": node.get("wikidata_description"),
+                # earliest_appearance omitted — column not populated in this run
             }
         )
 
-    # Trimmed edge list (drop heavy doc_ids)
+    # Trimmed edge list — relationship_type/dates/snippets omitted (not populated in this run)
     frontend_edges = [
-        {"source": e["source"], "target": e["target"], "weight": e["weight"]}
+        {
+            "source": e["source"],
+            "target": e["target"],
+            "weight": e["weight"],
+        }
         for e in edges
     ]
 
