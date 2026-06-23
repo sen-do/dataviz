@@ -457,26 +457,31 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
   const [aiText, setAiText] = useState<string | null>(null);
   const DOCS_VISIBLE = 5;
 
-  // Compute direct connections (neighbors)
-  const neighbors = useMemo<GraphNode[]>(() => {
-    const neighborIds = new Set(
-      edges
-        .filter((e) => e.source === node.id || e.target === node.id)
-        .map((e) => (e.source === node.id ? e.target : e.source))
-    );
-    return nodes.filter((n) => neighborIds.has(n.id));
+  // Compute direct connections: all neighbors + edge weight, sorted by weight desc
+  const neighbors = useMemo<{ node: GraphNode; weight: number }[]>(() => {
+    const edgeMap = new Map<string, number>();
+    edges
+      .filter((e) => e.source === node.id || e.target === node.id)
+      .forEach((e) => {
+        const neighborId = e.source === node.id ? e.target : e.source;
+        edgeMap.set(neighborId, (edgeMap.get(neighborId) ?? 0) + e.weight);
+      });
+    return nodes
+      .filter((n) => edgeMap.has(n.id))
+      .map((n) => ({ node: n, weight: edgeMap.get(n.id)! }))
+      .sort((a, b) => b.weight - a.weight);
   }, [edges, nodes, node.id]);
 
   // Unique communities of neighbors
   const neighborCommunities = useMemo(
-    () => [...new Set(neighbors.map((n) => n.community))],
+    () => [...new Set(neighbors.map(({ node: n }) => n.community))],
     [neighbors]
   );
 
   // Top 2 neighbor communities by count
   const topNeighborCommunities = useMemo(() => {
     const counts = new Map<number, number>();
-    neighbors.forEach((n) => counts.set(n.community, (counts.get(n.community) ?? 0) + 1));
+    neighbors.forEach(({ node: n }) => counts.set(n.community, (counts.get(n.community) ?? 0) + 1));
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 2)
@@ -642,40 +647,29 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
 
         <SidebarSeparator />
 
-        {/* Direct Connections */}
+        {/* Direct Connections — top 3 by edge weight */}
         {neighbors.length > 0 && (
           <>
-            <SectionLabel>Direct connections ({neighbors.length})</SectionLabel>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "nowrap",
-                overflowX: "auto",
-                gap: 6,
-                paddingBottom: 4,
-              }}
-            >
-              {neighbors.map((neighbor) => (
+            <SectionLabel>Top connections ({neighbors.length} total)</SectionLabel>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 4 }}>
+              {neighbors.slice(0, 3).map(({ node: neighbor, weight }) => (
                 <button
                   key={neighbor.id}
                   onClick={() => onNeighborClick(neighbor.id)}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 6,
-                    padding: "5px 10px",
-                    borderRadius: 9999,
+                    gap: 8,
+                    padding: "9px 12px",
+                    borderRadius: 10,
                     border: "1px solid #27272a",
                     background: "#18181b",
                     color: "#d4d4d8",
                     fontSize: 12,
                     cursor: "pointer",
                     fontFamily: "inherit",
-                    flexShrink: 0,
-                    textTransform: "capitalize",
+                    textAlign: "left",
                     transition: "all 150ms",
-                    whiteSpace: "nowrap",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = "#27272a";
@@ -695,7 +689,12 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
                       flexShrink: 0,
                     }}
                   />
-                  {neighbor.label}
+                  <span style={{ flex: 1, textTransform: "capitalize", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {neighbor.label}
+                  </span>
+                  <span style={{ fontSize: 11, color: "#71717a", fontVariantNumeric: "tabular-nums", fontFamily: "monospace", flexShrink: 0 }}>
+                    {weight.toLocaleString()} co-occ
+                  </span>
                 </button>
               ))}
             </div>
