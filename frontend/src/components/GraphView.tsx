@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CosmographProvider, Cosmograph, prepareCosmographData } from "@cosmograph/react";
 import type { CosmographConfig } from "@cosmograph/react";
 import { loadGraph } from "@/lib/data";
@@ -22,7 +22,7 @@ function buildCosmographConfig(nodes: GraphNode[], edges: GraphEdge[]): Promise<
   // intermediate bridges clearly larger than peripheral nodes.
   const nodesForCosmo = nodes.map(({ source_docs: _, wikidata_description: __, ...rest }) => ({
     ...rest,
-    _size: 3 + Math.pow(rest.betweenness_centrality / bcMax, 0.35) * 27,
+    _size: 6 + Math.pow(rest.betweenness_centrality / bcMax, 0.35) * 24,
   }));
 
   // Only strong co-occurrence edges drive the physics layout.
@@ -72,6 +72,10 @@ export function GraphView() {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [zoomedIn, setZoomedIn] = useState(false);
+
+  // Tracks which node index is currently hovered so we don't re-fire on every
+  // zoom/pan tick that Cosmograph emits via onPointMouseOver.
+  const hoveredIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
     loadGraph()
@@ -165,6 +169,10 @@ export function GraphView() {
           link_visibility_distance_range: [5, 100],
           link_visibility_min_transparency: 0.02,
           link_greyout_opacity: 0.02,
+          point_greyout_opacity: 0.15,
+          // Hover ring — white ring on the nearest node under the cursor
+          render_hovered_point_ring: true,
+          hovered_point_ring_color: "#ffffff",
           scale_points_on_zoom: true,
           scale_links_on_zoom: true,
           // Labels — cluster overview vs node names when zoomed in
@@ -194,6 +202,21 @@ export function GraphView() {
         onZoom={() => {
           const zoom = cosmographRef.current?.getZoomLevel?.() ?? 0;
           setZoomedIn(zoom > 3.5);
+        }}
+        onPointMouseOver={(index: number) => {
+          if (index === hoveredIndexRef.current) return;
+          hoveredIndexRef.current = index;
+          // Don't clobber an explicit selection or ego-mode — those take priority.
+          if (selectedNodeId || egoMode) return;
+          const ref = cosmographRef.current;
+          if (!ref) return;
+          // Highlight the hovered node + its direct neighbors; dim everything else.
+          ref.selectPoint?.(index, false, true);
+        }}
+        onPointMouseOut={() => {
+          hoveredIndexRef.current = null;
+          if (selectedNodeId || egoMode) return;
+          cosmographRef.current?.unselectAllPoints?.();
         }}
         onPointClick={(index: number) => {
           const node = orderedNodes[index];
