@@ -2,6 +2,41 @@ import { useMemo, useState } from "react";
 import { useGraphStore, useSelectedNode } from "@/store";
 import { communityColor } from "@/lib/colors";
 
+/* ─── Guided story ───────────────────────────────────────────────────────── */
+
+const STORY_STEPS = [
+  {
+    nodeId: "jeffrey epstein",
+    title: "The Center of Everything",
+    body: "Jeffrey Epstein sits at the absolute core of this network. 29% of all shortest paths between any two entities pass through him — no other node comes close. Remove him and the network fractures into disconnected islands.",
+  },
+  {
+    nodeId: "lesley groff",
+    title: "The Fixer",
+    body: "Lesley Groff was Epstein's executive assistant for over a decade. She coordinated flights, payments, and appointments across his entire operation — appearing in more internal exchanges than almost anyone else in the files.",
+  },
+  {
+    nodeId: "ghislaine maxwell",
+    title: "The Social Bridge",
+    body: "Ghislaine Maxwell belongs to a completely separate community from the financial cluster. She was Epstein's bridge to British aristocracy, academia, and media — a world of access and influence that money alone couldn't buy.",
+  },
+  {
+    nodeId: "jpmorgan chase",
+    title: "The Bank That Knew",
+    body: "JPMorgan Chase was Epstein's primary bank for over a decade, despite repeated internal red flags. Its cluster in this network reveals the financiers, attorneys, and executives who intersected with his money flows.",
+  },
+  {
+    nodeId: "deutsche bank",
+    title: "The European Exit",
+    body: "After JPMorgan eventually cut ties, Deutsche Bank took over as Epstein's primary banker. Court filings show the bank continued processing suspicious transactions for years — becoming his new financial lifeline.",
+  },
+  {
+    nodeId: "karyna shuliak",
+    title: "The Final Years",
+    body: "Karyna Shuliak emerges prominently in Epstein's last years of correspondence before his 2019 arrest. A key node in the personal staff community, she bridges his inner circle to travel and logistics in the final chapter.",
+  },
+] as const;
+
 // Human-readable community names derived from top-betweenness nodes per cluster
 const COMMUNITY_NAMES: Record<number, string> = {
   0:  "JPMorgan & SEC",
@@ -59,6 +94,23 @@ export function Sidebar() {
   const selectedNode = useSelectedNode();
 
   const [trail, setTrail] = useState<string[]>([]);
+  const [storyStep, setStoryStep] = useState<number | null>(null);
+
+  function startStory() {
+    setTrail([]);
+    setStoryStep(0);
+    setSelectedNode(STORY_STEPS[0].nodeId);
+  }
+
+  function goToStep(step: number) {
+    setStoryStep(step);
+    setSelectedNode(STORY_STEPS[step].nodeId);
+  }
+
+  function exitStory() {
+    setStoryStep(null);
+    setSelectedNode(null);
+  }
 
   // When node changes via external means (e.g. graph click), reset trail
   // but we handle trail push internally in selectNode.
@@ -115,7 +167,14 @@ export function Sidebar() {
         fontFamily: "Inter, sans-serif",
       }}
     >
-      {selectedNode ? (
+      {storyStep !== null ? (
+        <StoryView
+          step={storyStep}
+          onNext={() => goToStep(storyStep + 1)}
+          onPrev={() => goToStep(storyStep - 1)}
+          onExit={exitStory}
+        />
+      ) : selectedNode ? (
         <NodeDetail
           node={selectedNode}
           trail={trail}
@@ -125,7 +184,7 @@ export function Sidebar() {
           onNeighborClick={handleNeighborClick}
         />
       ) : (
-        <DefaultView setTrail={setTrail} />
+        <DefaultView setTrail={setTrail} onStartStory={startStory} />
       )}
     </aside>
   );
@@ -135,9 +194,10 @@ export function Sidebar() {
 
 interface DefaultViewProps {
   setTrail: React.Dispatch<React.SetStateAction<string[]>>;
+  onStartStory: () => void;
 }
 
-function DefaultView({ setTrail }: DefaultViewProps) {
+function DefaultView({ setTrail, onStartStory }: DefaultViewProps) {
   const allNodes = useGraphStore((s) => s.nodes);
   const allEdges = useGraphStore((s) => s.edges);
   const allCommunities = useGraphStore((s) => s.allCommunities);
@@ -209,6 +269,40 @@ function DefaultView({ setTrail }: DefaultViewProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 0, overflowY: "auto", height: "100%" }}>
+
+      {/* Guided story CTA */}
+      <button
+        onClick={onStartStory}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          width: "100%",
+          padding: "10px 16px",
+          borderRadius: 12,
+          border: "1px solid #3f3f46",
+          background: "linear-gradient(135deg, #18181b 0%, #1c1c20 100%)",
+          color: "#e4e4e7",
+          fontSize: 13,
+          fontWeight: 500,
+          cursor: "pointer",
+          fontFamily: "inherit",
+          marginBottom: 16,
+          transition: "all 150ms",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = "#52525b";
+          e.currentTarget.style.color = "white";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "#3f3f46";
+          e.currentTarget.style.color = "#e4e4e7";
+        }}
+      >
+        <span style={{ fontSize: 15 }}>▶</span>
+        Guided Story — 6 Key Findings
+      </button>
 
       {/* Stats — 3 columns */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
@@ -889,6 +983,122 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
 
         {/* Bottom spacer */}
         <div style={{ height: 8 }} />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Story view ─────────────────────────────────────────────────────────── */
+
+interface StoryViewProps {
+  step: number;
+  onNext: () => void;
+  onPrev: () => void;
+  onExit: () => void;
+}
+
+function StoryView({ step, onNext, onPrev, onExit }: StoryViewProps) {
+  const { nodeId, title, body } = STORY_STEPS[step];
+  const nodes = useGraphStore((s) => s.nodes);
+  const node = nodes.find((n) => n.id === nodeId);
+  const color = node ? communityColor(node.community) : "#71717a";
+  const communityName = node ? (COMMUNITY_NAMES[node.community] ?? `Group ${node.community}`) : "";
+  const isFirst = step === 0;
+  const isLast = step === STORY_STEPS.length - 1;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28, flexShrink: 0 }}>
+        <span style={{ fontSize: 11, color: "#52525b", fontFamily: "monospace", fontVariantNumeric: "tabular-nums", letterSpacing: "0.05em" }}>
+          {String(step + 1).padStart(2, "0")} / {String(STORY_STEPS.length).padStart(2, "0")}
+        </span>
+        <button
+          onClick={onExit}
+          style={{ background: "transparent", border: "none", color: "#52525b", fontSize: 12, cursor: "pointer", fontFamily: "inherit", padding: 0 }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#a1a1aa")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#52525b")}
+        >
+          Exit story ✕
+        </button>
+      </div>
+
+      {/* Narrative */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+        <h2 style={{ color: "white", fontSize: 19, fontWeight: 700, margin: 0, lineHeight: 1.25 }}>
+          {title}
+        </h2>
+        <p style={{ color: "#a1a1aa", fontSize: 13, lineHeight: 1.75, margin: 0 }}>
+          {body}
+        </p>
+        {node && (
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: `${color}18`, color, border: `1px solid ${color}33`,
+            fontSize: 11, borderRadius: 9999, padding: "4px 12px",
+            alignSelf: "flex-start", textTransform: "capitalize",
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: color, flexShrink: 0 }} />
+            {node.label} · {communityName}
+          </span>
+        )}
+      </div>
+
+      {/* Progress dots */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 5, margin: "20px 0 16px" }}>
+        {STORY_STEPS.map((_, i) => (
+          <span
+            key={i}
+            style={{
+              height: 4,
+              width: i === step ? 20 : 4,
+              borderRadius: 9999,
+              background: i === step ? color : "#27272a",
+              transition: "all 250ms ease",
+              flexShrink: 0,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Navigation */}
+      <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+        <button
+          onClick={onPrev}
+          disabled={isFirst}
+          style={{
+            flex: 1, padding: "10px 0", borderRadius: 10,
+            border: "1px solid #27272a",
+            background: "transparent",
+            color: isFirst ? "#3f3f46" : "#a1a1aa",
+            fontSize: 13, fontWeight: 500,
+            cursor: isFirst ? "not-allowed" : "pointer",
+            fontFamily: "inherit",
+            transition: "all 150ms",
+          }}
+          onMouseEnter={(e) => { if (!isFirst) e.currentTarget.style.borderColor = "#52525b"; }}
+          onMouseLeave={(e) => { if (!isFirst) e.currentTarget.style.borderColor = "#27272a"; }}
+        >
+          ← Prev
+        </button>
+        <button
+          onClick={isLast ? onExit : onNext}
+          style={{
+            flex: 2, padding: "10px 0", borderRadius: 10,
+            border: `1px solid ${color}`,
+            background: color,
+            color: "#09090b",
+            fontSize: 13, fontWeight: 600,
+            cursor: "pointer",
+            fontFamily: "inherit",
+            transition: "all 150ms",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+        >
+          {isLast ? "Finish ✓" : "Next →"}
+        </button>
       </div>
     </div>
   );
