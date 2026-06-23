@@ -131,15 +131,18 @@ export function GraphView() {
     if (!panRequestId || !ready) return;
     const nodeIdx = orderedNodes.findIndex((n) => n.id === panRequestId);
     if (nodeIdx >= 0) {
-      const neighborIds = new Set(
+      // Only fit to the top 8 strongest neighbors so the view stays compact.
+      const topNeighborIds = new Set(
         storeEdges
           .filter((e) => e.source === panRequestId || e.target === panRequestId)
+          .sort((a, b) => b.weight - a.weight)
+          .slice(0, 8)
           .map((e) => (e.source === panRequestId ? e.target : e.source))
       );
       const neighborIndices = orderedNodes
-        .map((n, i) => (neighborIds.has(n.id) ? i : -1))
+        .map((n, i) => (topNeighborIds.has(n.id) ? i : -1))
         .filter((i) => i >= 0);
-      cosmographRef.current?.fitViewByIndices?.([nodeIdx, ...neighborIndices], 600, 0.15);
+      cosmographRef.current?.fitViewByIndices?.([nodeIdx, ...neighborIndices], 600, 0.25);
     }
     clearPanRequest();
   }, [panRequestId, orderedNodes, storeEdges, ready, clearPanRequest]);
