@@ -30,18 +30,21 @@ backgrounds tend to wash out the gaps that are central to the structural-holes c
 | Betweenness centrality | Node size | Large nodes are bridge actors — the primary analytical signal |
 | Community / domain cluster | Node colour (Louvain) | Colour pre-attentively separates clusters; community = domain proxy |
 | Co-occurrence edge weight | Edge width | Stronger co-occurrence = thicker line; weak links fade visually |
-| Entity type (PERSON vs ORG) | Node border style | Dashed border = ORG, solid = PERSON |
-| Node label | Shown only for top 50 by betweenness | Avoids label overload; labels appear on hover for all other nodes |
+| Entity type (PERSON vs ORG) | Detail panel label | Type is surfaced in the sidebar entity detail rather than a visual channel |
+| Node label | Shown for top 25 by betweenness when zoomed in, or for the selected node | Avoids label overload at the overview zoom level |
 
 ---
 
 ## Layout
 
 - **Canvas:** fullscreen (100 vw × 100 vh), no margins — the network fills the view.
-- **Floating sidebar** (right, width ~320 px, translucent dark glass): activated on node
-  click; shows entity name, type, betweenness rank, community, co-occurrence count, and
-  links to source documents (DOJ URLs from `online_url` field).
-- **Translucent navbar** (top): project title, search bar, domain/community filter chips.
+- **Floating sidebar** (left, width ~320 px, dark glass panel): always visible; holds
+  entity search, community filter chips, minimum-connections slider, and top structural
+  bridges. Clicking a node opens a detailed panel with betweenness rank, co-occurrence
+  count, and links to source documents (DOJ URLs from `online_url` field).
+- **Minimal navbar** (top centre): project name pill only — navigation lives in the sidebar.
+- **Legend overlay** (bottom right): collapsible three-row key — node size = influence,
+  colour = community, edge thickness = co-occurrence.
 - Controls overlay the canvas rather than displacing it — the graph always occupies the
   full viewport.
 
@@ -51,13 +54,13 @@ backgrounds tend to wash out the gaps that are central to the structural-holes c
 
 | Interaction | Behaviour |
 |---|---|
-| Click node | Open sidebar with entity details + list of source document links |
-| Hover node | Show tooltip with label and betweenness rank |
-| Domain filter chips | Isolate nodes belonging to selected community colours |
-| Search bar | Highlight matching node; pan/zoom to it |
+| Click node | Open sidebar with entity details + list of source document links; camera pans to node |
+| Hover node | White ring on nearest node; node + its direct neighbours are brightened, rest dimmed |
+| Community filter chips | Isolate nodes belonging to selected community colours |
+| Search bar | Highlight matching node; pan/zoom to it; node + neighbours brightened |
 | Ego-network toggle | Collapse view to clicked node + its immediate neighbours |
-| Shortest path | Select two nodes; highlight shortest path between them |
-| Zoom / pan | Mouse wheel + drag (standard force-graph behaviour) |
+| Guided story | Step through 6 pre-authored narrative findings; each step focuses a key actor |
+| Zoom / pan | Mouse wheel + drag; zoom-to-fit and ± buttons in the right-centre controls overlay |
 
 All source document links open the DOJ-hosted document in a new tab, providing full
 provenance traceability for every displayed connection. This is a deliberate design choice
