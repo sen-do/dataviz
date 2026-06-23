@@ -134,16 +134,27 @@ interface DefaultViewProps {
 }
 
 function DefaultView({ setTrail }: DefaultViewProps) {
-  const nodes = useGraphStore((s) => s.nodes);
-  const edges = useGraphStore((s) => s.edges);
+  const allNodes = useGraphStore((s) => s.nodes);
+  const allEdges = useGraphStore((s) => s.edges);
   const allCommunities = useGraphStore((s) => s.allCommunities);
   const activeCommunities = useGraphStore((s) => s.activeCommunities);
   const toggleCommunity = useGraphStore((s) => s.toggleCommunity);
   const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
+  const minConn = useGraphStore((s) => s.minConnections);
+  const setMinConn = useGraphStore((s) => s.setMinConnections);
+
+  // Filter nodes/edges by active communities
+  const { nodes, edges } = useMemo(() => {
+    const filteredNodes = allNodes.filter((n) => activeCommunities.has(n.community));
+    const filteredNodeIds = new Set(filteredNodes.map((n) => n.id));
+    const filteredEdges = allEdges.filter(
+      (e) => filteredNodeIds.has(e.source) && filteredNodeIds.has(e.target)
+    );
+    return { nodes: filteredNodes, edges: filteredEdges };
+  }, [allNodes, allEdges, activeCommunities]);
 
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [minConn, setMinConn] = useState(1);
 
   const maxDegree = useMemo(
     () => nodes.reduce((m, n) => Math.max(m, n.degree), 1),
@@ -399,10 +410,21 @@ interface NodeDetailProps {
 }
 
 function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: NodeDetailProps) {
-  const nodes = useGraphStore((s) => s.nodes);
-  const edges = useGraphStore((s) => s.edges);
+  const allNodes = useGraphStore((s) => s.nodes);
+  const allEdges = useGraphStore((s) => s.edges);
+  const activeCommunities = useGraphStore((s) => s.activeCommunities);
   const egoMode = useGraphStore((s) => s.egoMode);
   const setEgoMode = useGraphStore((s) => s.setEgoMode);
+
+  // Filter nodes/edges by active communities
+  const { nodes, edges } = useMemo(() => {
+    const filteredNodes = allNodes.filter((n) => activeCommunities.has(n.community));
+    const filteredNodeIds = new Set(filteredNodes.map((n) => n.id));
+    const filteredEdges = allEdges.filter(
+      (e) => filteredNodeIds.has(e.source) && filteredNodeIds.has(e.target)
+    );
+    return { nodes: filteredNodes, edges: filteredEdges };
+  }, [allNodes, allEdges, activeCommunities]);
 
   const [docsExpanded, setDocsExpanded] = useState(false);
   const [aiText, setAiText] = useState<string | null>(null);
@@ -410,11 +432,12 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
 
   // Compute direct connections (neighbors)
   const neighbors = useMemo<GraphNode[]>(() => {
-    const neighborIds = edges
-      .filter((e) => e.source === node.id || e.target === node.id)
-      .map((e) => (e.source === node.id ? e.target : e.source));
-    const idSet = new Set(neighborIds);
-    return nodes.filter((n) => idSet.has(n.id));
+    const neighborIds = new Set(
+      edges
+        .filter((e) => e.source === node.id || e.target === node.id)
+        .map((e) => (e.source === node.id ? e.target : e.source))
+    );
+    return nodes.filter((n) => neighborIds.has(n.id));
   }, [edges, nodes, node.id]);
 
   // Unique communities of neighbors
@@ -569,6 +592,11 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
           >
             {node.label}
           </h2>
+          {node.wikidata_description && (
+            <p style={{ fontSize: 11, color: "#a1a1aa", margin: "6px 0 0 0", lineHeight: 1.5 }}>
+              {node.wikidata_description}
+            </p>
+          )}
         </div>
 
         <SidebarSeparator />

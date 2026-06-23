@@ -14,6 +14,8 @@ export interface GraphNode {
   community: number;
   clustering_coefficient: number;
   source_docs: SourceDoc[];
+  wikidata_id?: string;
+  wikidata_description?: string;
 }
 
 export interface GraphEdge {
