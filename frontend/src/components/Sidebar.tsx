@@ -212,12 +212,17 @@ function DefaultView({ setTrail }: DefaultViewProps) {
   }, [sortedCommunities, nodes, minConn]);
 
   function selectNode(id: string) {
-    const idx = nodes.findIndex((n) => n.id === id);
-    if (idx >= 0) cosmographRef.current?.focusPoint(idx);
     setSelectedNode(id);
     setTrail([]);
     setQuery("");
     setShowDropdown(false);
+    // Best-effort: pan camera to the node. Index must match orderedNodes in GraphView.
+    try {
+      const idx = nodes.findIndex((n) => n.id === id);
+      if (idx >= 0) cosmographRef.current?.focusPoint?.(idx);
+    } catch {
+      // focusPoint failure is non-critical; node detail still opens
+    }
   }
 
   return (
