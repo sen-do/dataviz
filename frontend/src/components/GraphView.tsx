@@ -118,8 +118,19 @@ export function GraphView() {
       return;
     }
     const idx = orderedNodes.findIndex((n) => n.id === selectedNodeId);
-    if (idx >= 0) ref.selectPoint?.(idx, true, true);
-  }, [egoMode, selectedNodeId, orderedNodes]);
+    if (idx < 0) return;
+    const neighborIds = new Set(
+      storeEdges
+        .filter((e) => e.source === selectedNodeId || e.target === selectedNodeId)
+        .map((e) => (e.source === selectedNodeId ? e.target : e.source))
+    );
+    const neighborIndices = orderedNodes
+      .map((n, i) => (neighborIds.has(n.id) ? i : -1))
+      .filter((i) => i >= 0);
+    // selectPoints treats all selected nodes equally — keeps edges between any two
+    // selected nodes bright, unlike selectPoint() which only un-dims edges of the hub.
+    ref.selectPoints?.([idx, ...neighborIndices]);
+  }, [egoMode, selectedNodeId, orderedNodes, storeEdges]);
 
   useEffect(() => {
     if (!selectedNodeId) cosmographRef.current?.unselectAllPoints?.();
@@ -235,8 +246,17 @@ export function GraphView() {
           if (selectedNodeId || egoMode) return;
           const ref = cosmographRef.current;
           if (!ref) return;
-          // Highlight the hovered node + its direct neighbors; dim everything else.
-          ref.selectPoint?.(index, false, true);
+          const hoveredNode = orderedNodes[index];
+          if (!hoveredNode) return;
+          const neighborIds = new Set(
+            storeEdges
+              .filter((e) => e.source === hoveredNode.id || e.target === hoveredNode.id)
+              .map((e) => (e.source === hoveredNode.id ? e.target : e.source))
+          );
+          const neighborIndices = orderedNodes
+            .map((n, i) => (neighborIds.has(n.id) ? i : -1))
+            .filter((i) => i >= 0);
+          ref.selectPoints?.([index, ...neighborIndices]);
         }}
         onPointMouseOut={() => {
           hoveredIndexRef.current = null;
