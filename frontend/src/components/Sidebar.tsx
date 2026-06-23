@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useGraphStore, useSelectedNode } from "@/store";
-import { cosmographRef } from "@/graphRef";
 import { communityColor } from "@/lib/colors";
 
 // Human-readable community names derived from top-betweenness nodes per cluster
@@ -56,8 +55,8 @@ function FileTextIcon() {
 /* ─── Root ───────────────────────────────────────────────────────────────── */
 
 export function Sidebar() {
-  const nodes = useGraphStore((s) => s.nodes);
   const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
+  const requestPan = useGraphStore((s) => s.requestPan);
   const selectedNode = useSelectedNode();
 
   const [trail, setTrail] = useState<string[]>([]);
@@ -75,11 +74,9 @@ export function Sidebar() {
   }
 
   function handleBreadcrumbJump(id: string, idx: number) {
-    // Jump back to node at idx, trim trail to that point
     setTrail((prev) => prev.slice(0, idx));
     setSelectedNode(id);
-    const nodeIdx = nodes.findIndex((n) => n.id === id);
-    if (nodeIdx >= 0) cosmographRef.current?.focusPoint(nodeIdx);
+    requestPan(id);
   }
 
   function handleNeighborClick(id: string) {
@@ -88,8 +85,7 @@ export function Sidebar() {
       setTrail((prev) => [...prev, currentId]);
     }
     setSelectedNode(id);
-    const nodeIdx = nodes.findIndex((n) => n.id === id);
-    if (nodeIdx >= 0) cosmographRef.current?.focusPoint(nodeIdx);
+    requestPan(id);
   }
 
   function handleBack() {
@@ -97,8 +93,7 @@ export function Sidebar() {
     if (prev) {
       setTrail((t) => t.slice(0, -1));
       setSelectedNode(prev);
-      const nodeIdx = nodes.findIndex((n) => n.id === prev);
-      if (nodeIdx >= 0) cosmographRef.current?.focusPoint(nodeIdx);
+      requestPan(prev);
     } else {
       setTrail([]);
       setSelectedNode(null);
@@ -154,7 +149,7 @@ function DefaultView({ setTrail }: DefaultViewProps) {
   const allCommunities = useGraphStore((s) => s.allCommunities);
   const activeCommunities = useGraphStore((s) => s.activeCommunities);
   const toggleCommunity = useGraphStore((s) => s.toggleCommunity);
-  const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
+  const focusEntity = useGraphStore((s) => s.focusEntity);
   const minConn = useGraphStore((s) => s.minConnections);
   const setMinConn = useGraphStore((s) => s.setMinConnections);
 
@@ -212,17 +207,12 @@ function DefaultView({ setTrail }: DefaultViewProps) {
   }, [sortedCommunities, nodes, minConn]);
 
   function selectNode(id: string) {
-    setSelectedNode(id);
+    // focusEntity: sets selectedNodeId + egoMode + panRequestId atomically.
+    // GraphView resolves the correct orderedNodes index and calls zoomToPoint.
+    focusEntity(id);
     setTrail([]);
     setQuery("");
     setShowDropdown(false);
-    // Best-effort: pan camera to the node. Index must match orderedNodes in GraphView.
-    try {
-      const idx = nodes.findIndex((n) => n.id === id);
-      if (idx >= 0) cosmographRef.current?.focusPoint?.(idx);
-    } catch {
-      // focusPoint failure is non-critical; node detail still opens
-    }
   }
 
   return (

@@ -10,9 +10,20 @@ interface GraphStore {
   selectedNodeId: string | null;
   setSelectedNode: (id: string | null) => void;
 
+  // Transient pan signal — resolved to the correct orderedNodes index inside GraphView.
+  // Set by focusEntity / requestPan, cleared by GraphView after zooming.
+  panRequestId: string | null;
+  requestPan: (id: string) => void;
+  clearPanRequest: () => void;
+  // Atomic "select + ego + pan" used by search result clicks.
+  focusEntity: (id: string) => void;
+
   activeCommunities: Set<number>;
   toggleCommunity: (community: number) => void;
   setAllCommunities: (active: boolean) => void;
+
+  minConnections: number;
+  setMinConnections: (n: number) => void;
 
   egoMode: boolean;
   setEgoMode: (on: boolean) => void;
@@ -33,6 +44,11 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   selectedNodeId: null,
   setSelectedNode: (id) => set({ selectedNodeId: id, egoMode: false }),
 
+  panRequestId: null,
+  requestPan: (id) => set({ panRequestId: id }),
+  clearPanRequest: () => set({ panRequestId: null }),
+  focusEntity: (id) => set({ selectedNodeId: id, egoMode: true, panRequestId: id }),
+
   activeCommunities: new Set(),
   toggleCommunity: (community) => {
     const next = new Set(get().activeCommunities);
@@ -42,6 +58,9 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   },
   setAllCommunities: (active) =>
     set({ activeCommunities: active ? new Set(get().allCommunities) : new Set() }),
+
+  minConnections: 1,
+  setMinConnections: (n) => set({ minConnections: n }),
 
   egoMode: false,
   setEgoMode: (on) => set({ egoMode: on }),

@@ -64,6 +64,8 @@ export function GraphView() {
   const egoMode = useGraphStore((s) => s.egoMode);
   const activeCommunities = useGraphStore((s) => s.activeCommunities);
   const minConnections = useGraphStore((s) => s.minConnections);
+  const panRequestId = useGraphStore((s) => s.panRequestId);
+  const clearPanRequest = useGraphStore((s) => s.clearPanRequest);
 
   const [fullNodes, setFullNodes] = useState<GraphNode[]>([]);
   const [fullEdges, setFullEdges] = useState<GraphEdge[]>([]);
@@ -121,6 +123,18 @@ export function GraphView() {
   useEffect(() => {
     if (!selectedNodeId) cosmographRef.current?.unselectAllPoints?.();
   }, [selectedNodeId]);
+
+  // Pan camera to the requested node. Resolved here because orderedNodes (the correct
+  // index space for Cosmograph) is only available inside GraphView.
+  useEffect(() => {
+    if (!panRequestId || !ready) return;
+    const idx = orderedNodes.findIndex((n) => n.id === panRequestId);
+    if (idx >= 0) {
+      // duration 600ms, scale 4 (above the 3.5 label-reveal threshold), canZoomOut true
+      cosmographRef.current?.zoomToPoint?.(idx, 600, 4, true);
+    }
+    clearPanRequest();
+  }, [panRequestId, orderedNodes, ready, clearPanRequest]);
 
   useEffect(() => {
     if (!ready) return;
