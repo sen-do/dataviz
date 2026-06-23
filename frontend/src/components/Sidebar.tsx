@@ -56,7 +56,6 @@ function FileTextIcon() {
 
 export function Sidebar() {
   const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
-  const requestPan = useGraphStore((s) => s.requestPan);
   const selectedNode = useSelectedNode();
 
   const [trail, setTrail] = useState<string[]>([]);
@@ -76,16 +75,12 @@ export function Sidebar() {
   function handleBreadcrumbJump(id: string, idx: number) {
     setTrail((prev) => prev.slice(0, idx));
     setSelectedNode(id);
-    requestPan(id);
   }
 
   function handleNeighborClick(id: string) {
     const currentId = selectedNode?.id;
-    if (currentId) {
-      setTrail((prev) => [...prev, currentId]);
-    }
+    if (currentId) setTrail((prev) => [...prev, currentId]);
     setSelectedNode(id);
-    requestPan(id);
   }
 
   function handleBack() {
@@ -93,7 +88,6 @@ export function Sidebar() {
     if (prev) {
       setTrail((t) => t.slice(0, -1));
       setSelectedNode(prev);
-      requestPan(prev);
     } else {
       setTrail([]);
       setSelectedNode(null);
@@ -149,7 +143,7 @@ function DefaultView({ setTrail }: DefaultViewProps) {
   const allCommunities = useGraphStore((s) => s.allCommunities);
   const activeCommunities = useGraphStore((s) => s.activeCommunities);
   const toggleCommunity = useGraphStore((s) => s.toggleCommunity);
-  const focusEntity = useGraphStore((s) => s.focusEntity);
+  const setSelectedNode = useGraphStore((s) => s.setSelectedNode);
   const minConn = useGraphStore((s) => s.minConnections);
   const setMinConn = useGraphStore((s) => s.setMinConnections);
 
@@ -207,9 +201,7 @@ function DefaultView({ setTrail }: DefaultViewProps) {
   }, [sortedCommunities, nodes, minConn]);
 
   function selectNode(id: string) {
-    // focusEntity: sets selectedNodeId + egoMode + panRequestId atomically.
-    // GraphView resolves the correct orderedNodes index and calls zoomToPoint.
-    focusEntity(id);
+    setSelectedNode(id);
     setTrail([]);
     setQuery("");
     setShowDropdown(false);

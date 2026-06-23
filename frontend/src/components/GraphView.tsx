@@ -66,6 +66,7 @@ export function GraphView() {
   const minConnections = useGraphStore((s) => s.minConnections);
   const panRequestId = useGraphStore((s) => s.panRequestId);
   const clearPanRequest = useGraphStore((s) => s.clearPanRequest);
+  const storeEdges = useGraphStore((s) => s.edges);
 
   const [fullNodes, setFullNodes] = useState<GraphNode[]>([]);
   const [fullEdges, setFullEdges] = useState<GraphEdge[]>([]);
@@ -124,17 +125,24 @@ export function GraphView() {
     if (!selectedNodeId) cosmographRef.current?.unselectAllPoints?.();
   }, [selectedNodeId]);
 
-  // Pan camera to the requested node. Resolved here because orderedNodes (the correct
-  // index space for Cosmograph) is only available inside GraphView.
+  // Fit view to selected node + its direct neighbors.
+  // Resolved here — orderedNodes (the correct Cosmograph index space) only lives in GraphView.
   useEffect(() => {
     if (!panRequestId || !ready) return;
-    const idx = orderedNodes.findIndex((n) => n.id === panRequestId);
-    if (idx >= 0) {
-      // duration 600ms, scale 4 (above the 3.5 label-reveal threshold), canZoomOut true
-      cosmographRef.current?.zoomToPoint?.(idx, 600, 4, true);
+    const nodeIdx = orderedNodes.findIndex((n) => n.id === panRequestId);
+    if (nodeIdx >= 0) {
+      const neighborIds = new Set(
+        storeEdges
+          .filter((e) => e.source === panRequestId || e.target === panRequestId)
+          .map((e) => (e.source === panRequestId ? e.target : e.source))
+      );
+      const neighborIndices = orderedNodes
+        .map((n, i) => (neighborIds.has(n.id) ? i : -1))
+        .filter((i) => i >= 0);
+      cosmographRef.current?.fitViewByIndices?.([nodeIdx, ...neighborIndices], 600, 0.15);
     }
     clearPanRequest();
-  }, [panRequestId, orderedNodes, ready, clearPanRequest]);
+  }, [panRequestId, orderedNodes, storeEdges, ready, clearPanRequest]);
 
   useEffect(() => {
     if (!ready) return;
@@ -189,11 +197,11 @@ export function GraphView() {
           hovered_point_ring_color: "#ffffff",
           scale_points_on_zoom: true,
           scale_links_on_zoom: true,
-          // Labels — cluster overview vs node names when zoomed in
-          show_labels: zoomedIn,
-          show_top_labels: zoomedIn,
-          show_labels_for: zoomedIn ? labelNodeIds : undefined,
-          show_cluster_labels: !zoomedIn,
+          // Labels — when a node is selected show only its label; otherwise cluster/zoom logic
+          show_labels: selectedNodeId ? true : zoomedIn,
+          show_top_labels: selectedNodeId ? false : zoomedIn,
+          show_labels_for: selectedNodeId ? [selectedNodeId] : (zoomedIn ? labelNodeIds : undefined),
+          show_cluster_labels: selectedNodeId ? false : !zoomedIn,
           point_label_color: "#ffffff",
           cluster_label_font_size: 16,
           scale_cluster_labels: true,

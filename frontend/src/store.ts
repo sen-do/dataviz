@@ -8,15 +8,12 @@ interface GraphStore {
   setGraphData: (nodes: GraphNode[], edges: GraphEdge[]) => void;
 
   selectedNodeId: string | null;
+  // Selecting any node always enables ego-mode and requests a fit-view — global behaviour.
   setSelectedNode: (id: string | null) => void;
 
-  // Transient pan signal — resolved to the correct orderedNodes index inside GraphView.
-  // Set by focusEntity / requestPan, cleared by GraphView after zooming.
+  // Transient fit-view signal. Set by setSelectedNode, cleared by GraphView after zooming.
   panRequestId: string | null;
-  requestPan: (id: string) => void;
   clearPanRequest: () => void;
-  // Atomic "select + ego + pan" used by search result clicks.
-  focusEntity: (id: string) => void;
 
   activeCommunities: Set<number>;
   toggleCommunity: (community: number) => void;
@@ -42,12 +39,10 @@ export const useGraphStore = create<GraphStore>((set, get) => ({
   },
 
   selectedNodeId: null,
-  setSelectedNode: (id) => set({ selectedNodeId: id, egoMode: false }),
+  setSelectedNode: (id) => set({ selectedNodeId: id, egoMode: id !== null, panRequestId: id }),
 
   panRequestId: null,
-  requestPan: (id) => set({ panRequestId: id }),
   clearPanRequest: () => set({ panRequestId: null }),
-  focusEntity: (id) => set({ selectedNodeId: id, egoMode: true, panRequestId: id }),
 
   activeCommunities: new Set(),
   toggleCommunity: (community) => {
