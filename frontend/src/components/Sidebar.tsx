@@ -488,6 +488,12 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
       .map(([c]) => c);
   }, [neighbors]);
 
+  // Max betweenness in visible set — used to scale the influence bar
+  const bcMax = useMemo(
+    () => allNodes.reduce((m, n) => Math.max(m, n.betweenness_centrality), 0.001),
+    [allNodes]
+  );
+
   // "Why a bridge?" text
   const bridgeText = useMemo(() => {
     const bPct = (node.betweenness_centrality * 100).toFixed(2);
@@ -634,15 +640,34 @@ function NodeDetail({ node, trail, onBack, onBreadcrumbJump, onNeighborClick }: 
 
         <SidebarSeparator />
 
-        {/* Metric cards */}
-        <SectionLabel>Metrics</SectionLabel>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 4 }}>
-          <MetricCard label="Betweenness" value={`${(node.betweenness_centrality * 100).toFixed(2)}%`} />
-          <MetricCard label="Degree" value={String(node.degree)} />
-          <MetricCard
-            label="Clustering"
-            value={node.clustering_coefficient != null ? node.clustering_coefficient.toFixed(3) : "—"}
-          />
+        {/* Network Influence */}
+        <SectionLabel>Network influence</SectionLabel>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: "#a1a1aa" }}>Bridge score</span>
+            <span style={{ fontSize: 18, color: "white", fontWeight: 600, fontFamily: "monospace", fontVariantNumeric: "tabular-nums" }}>
+              {(node.betweenness_centrality * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div style={{ height: 5, background: "#27272a", borderRadius: 9999, overflow: "hidden" }}>
+            <div
+              style={{
+                height: "100%",
+                width: `${Math.max(2, (node.betweenness_centrality / bcMax) * 100)}%`,
+                background: communityColor(node.community),
+                borderRadius: 9999,
+              }}
+            />
+          </div>
+          <p style={{ fontSize: 11, color: "#52525b", margin: "8px 0 0 0", lineHeight: 1.6 }}>
+            {node.betweenness_centrality * 100 >= 1
+              ? `${Math.round(node.betweenness_centrality * 100)} in 100 connections between any two people in this network pass through ${node.label}.`
+              : `A small share of connections in this network route through ${node.label}.`}
+          </p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 4 }}>
+          <MetricCard label="File appearances" value={node.occurrences.toLocaleString()} />
+          <MetricCard label="Connections" value={node.degree.toLocaleString()} />
         </div>
 
         <SidebarSeparator />
